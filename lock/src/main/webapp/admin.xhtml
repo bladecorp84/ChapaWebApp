@@ -1,0 +1,278 @@
+<ui:composition template="template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<p:growl id="growl" autoUpdate="true" showDetail="false" />
+
+			<div class="row">
+
+
+				<!--  FILA 1 COLUMNA 1 -->
+
+				<div class="col-lg-4">
+					<div class="row">
+					<div class="col-lg-12">
+						<div class="panel panel-success">
+							<div class="panel-heading">
+								<h3 class="panel-title">AGREGAR USUARIO</h3>
+							</div>
+							<div class="panel-body">
+							<p:fragment>
+								<p:panelGrid id="pnlAgregarUsuario">
+									<div class="form-horizontal">
+										<div class="form-group">
+											<h:outputLabel value="Usuario"
+												styleClass="control-label col-sm-3" />
+											<div class="col-sm-9">
+												<div class="input-group">
+													<p:inputText id="inputUsername" styleClass="form-control"
+														style="text-align:center;"
+														value="#{adminView.usuario.username}" />
+													<span class="input-group-addon"><i class="fa fa-key"></i>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="Password"
+												styleClass="control-label col-sm-3" />
+											<div class="col-sm-9">
+												<div class="input-group">
+													<p:inputText id="inputPassword" styleClass="form-control"
+														style="text-align:center;"
+														value="#{adminView.usuario.password}" />
+													<span class="input-group-addon"><i class="fa fa-key"></i>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="Cliente"
+												styleClass="control-label col-sm-3" />
+											<div class="col-lg-9">
+												<h:selectOneMenu id="inputCliente" styleClass="form-control"
+													value="#{adminView.usuario.idCliente}">
+													<f:selectItems value="#{adminView.clientes}" var="cliente"
+														itemLabel="#{cliente.nombre}" itemValue="#{cliente.id}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="Tipo"
+												styleClass="control-label col-sm-3" />
+											<div class="col-sm-9">
+												<h:selectOneMenu styleClass="form-control"
+													value="#{adminView.usuario.idTipousuario}">
+													<f:selectItems value="#{adminView.tiposUsuario}" var="tipo"
+														itemLabel="#{tipo.tipo}" itemValue="#{tipo.id}" />
+												</h:selectOneMenu>
+											</div>
+										</div>
+										<div class="form-group" style="margin-top: 35px;">
+											<p:outputLabel styleClass="control-label col-sm-3" />
+											<div class=" col-sm-7">
+												<p:commandButton value="AGREGAR"
+													styleClass="btn btn-primary form-control"
+													action="#{adminView.guardarUsuario}" 
+													update="dtUsuarios, inputUsername, inputPassword" />
+											</div>
+										</div>
+
+									</div>
+								</p:panelGrid>
+							</p:fragment>
+							</div>
+						</div>
+						</div>
+					</div>
+
+					<!-- FILA 2 COLUMNA 1 -->
+					<div class="row">
+					<div class="col-lg-12">
+						<div class="panel panel-success">
+							<div class="panel-heading">
+								<h3 class="panel-title">AGREGAR CLIENTE</h3>
+							</div>
+							<div class="panel-body">
+							<p:fragment>
+								<p:panelGrid id="pnlAgregarCliente">
+									<div class="form-horizontal">
+										<div class="form-group">
+											<h:outputLabel value="Nombre"
+												styleClass="control-label col-sm-3" />
+											<div class="col-sm-9">
+												<div class="input-group">
+													<p:inputText id="inputClienteNombre"
+														styleClass="form-control" style="text-align:center;"
+														value="#{adminView.cliente.nombre}" />
+													<span class="input-group-addon"><i class="fa fa-key"></i>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="Imagen"
+												styleClass="control-label col-sm-3" />
+											<div class="col-sm-9">
+												<div class="input-group">
+													<p:inputText id="inputClienteImagen"
+														styleClass="form-control" style="text-align:center;"
+														value="#{adminView.cliente.logo}" />
+													<span class="input-group-addon"><i class="fa fa-key"></i>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="form-group" style="margin-top: 35px;">
+											<p:outputLabel styleClass="control-label col-sm-3" />
+											<div class=" col-sm-7">
+												<p:commandButton value="AGREGAR"
+													update="inputCliente, inputClienteNombre, inputClienteImagen, 
+															inputClienteSel"
+													styleClass="btn btn-primary form-control"
+													action="#{adminView.guardarCliente}" />
+											</div>
+										</div>
+									</div>
+								</p:panelGrid>
+								</p:fragment>
+							</div>
+						</div>
+						</div>
+					</div>
+				</div>
+
+				<!-- FILA 1 COLUMNA 2 -->
+				<div class="col-lg-5">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<h3 class="panel-title">CUENTAS</h3>
+								</div>
+								<div class="panel-body">
+								<p:fragment>
+									<p:panel styleClass="noBorder">
+										<div class="form-horizontal">
+											<div class="form-group">
+												<h:outputLabel value="Cliente"
+													styleClass="control-label col-sm-2" />
+												<div class="col-sm-10">
+													<h:selectOneMenu id="inputClienteSel" styleClass="form-control"
+														value="#{adminView.clienteSel}">
+														<p:ajax event="change" update="dtUsuarios,form:editUsername, form:editPass"
+															listener="#{adminView.cambioCliente}"  />
+														<f:selectItems value="#{adminView.clientes}" var="cliente"
+															itemLabel="#{cliente.nombre}" itemValue="#{cliente.id}" />
+													</h:selectOneMenu>
+												</div>
+											</div>
+										</div>
+										<p:dataTable id="dtUsuarios" paginator="true" rows="9"
+											paginatorPosition="bottom" value="#{adminView.usuarios}"
+											var="user" reflow="true" selectionMode="single" 
+											selection="#{adminView.usuarioSel}" rowKey="#{user.username}">
+											<p:ajax event="rowSelect" 
+												update="form:editUsername, form:editPass, form:editTipo, form:editEstado" />
+											<p:column headerText="Usuario" style="text-align:center;">
+												<h:outputText value="#{user.username}" />
+											</p:column>
+											<p:column headerText="Tipo" style="text-align:center;">
+												<h:outputText
+													value="#{user.idTipousuario==1?'Admin':user.idTipousuario==2?'Super':'User'}" />
+											</p:column>
+											<p:column headerText="Estado" style="text-align:center;">
+												<h:outputText value="#{user.enabled?'Activo':'Inactivo'}"
+													style="color:#{user.enabled?'green':'red'}" />
+											</p:column>
+
+										</p:dataTable>
+									</p:panel>
+									<div class="col-lg-10 col-lg-offset-1">
+												<div class="form-group" style="text-align:center;">
+													<p:commandButton value="DESHABILITAR CUENTAS" 
+														styleClass="btn btn-danger form-control" 
+														action="#{adminView.deshabilitarCuentas}" update="dtUsuarios"/>
+												</div>
+											</div>
+								</p:fragment>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				
+				
+				<!-- FILA 1 COLUMNA 3 -->
+				<div class="col-lg-3">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<div class="panel-title"> USUARIO </div>
+								</div>
+								<div class="panel-body">
+								<p:fragment>
+									<p:panelGrid id="pnlUserEdit" styleClass="noBorder">
+										<div class="form">
+											<div class="form-group">
+												<p:commandLink action="#{adminView.eliminarUsuario}" styleClass="btn btn-sm btn-danger"
+														update="dtUsuarios, form:editUsername, form:editPass">
+													<i class="fa fa-trash"></i>
+												</p:commandLink>
+											</div>
+											<div class="form-group">
+												<h:outputText value="Usuario" />
+												<p:inputText id="editUsername" value="#{adminView.usuarioSel.username}" 
+														styleClass="form-control" disabled="true"/>
+											</div>
+											<div class="form-group">
+												<h:outputText value="Password" />
+												<p:inputText id="editPass" value="#{adminView.usuarioSel.password}" styleClass="form-control"/>
+											</div>
+											<div class="form-group">
+												<h:outputText value="Tipo" />
+												<h:selectOneMenu id="editTipo" styleClass="form-control" 
+														value="#{adminView.usuarioSel.idTipousuario}">
+													<f:selectItems value="#{adminView.tiposUsuario}" var="tipo"
+															itemLabel="#{tipo.tipo}" itemValue="#{tipo.id}" />
+												</h:selectOneMenu>
+											</div>
+											<div class="form-group">
+												<h:outputText value="Estado" />
+												<h:selectOneMenu id="editEstado" styleClass="form-control" 
+														value="#{adminView.usuarioSel.enabled}">
+													<f:selectItem itemLabel="Activo" itemValue="true"/>
+													<f:selectItem itemLabel="Inactivo" itemValue="false"/>
+												</h:selectOneMenu>
+											</div>
+											<div class="col-lg-10 col-lg-offset-1">
+												<div class="form-group" style="text-align:center;">
+													<p:commandButton value="ACTUALIZAR" action="#{adminView.actualizarUsuario}"
+														styleClass="btn btn-success form-control" 
+														update="dtUsuarios"/>
+												</div>
+											</div>
+											
+										</div>
+									</p:panelGrid>
+									</p:fragment>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- FIN DEL ROW PRINCIPAL -->
+		</h:form>
+
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN" "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd" >
+<generatorConfiguration >
+    <classPathEntry location="C:\Users\mysql-connector-java-5.1.26.jar" />
+  <context id="context1" >
+    <jdbcConnection driverClass="com.mysql.jdbc.Driver" connectionURL="jdbc:mysql://localhost:3306/base_chapa" userId="root" password="5438" />
+    <javaModelGenerator targetPackage="com.sysdt.lock.model" targetProject="MAVEN" />
+    <sqlMapGenerator targetPackage="com.sysdt.lock.xml" targetProject="MAVEN" />
+    <javaClientGenerator targetPackage="com.sysdt.lock.dao" targetProject="MAVEN" type="XMLMAPPER" />
+    
+    <table tableName="%" >
+      <property name="useActualColumnNames" value="false" />
+    </table>
+    
+  </context>
+</generatorConfiguration>

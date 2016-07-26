@@ -1,0 +1,121 @@
+<ui:composition template="template.xhtml"
+	xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:p="http://primefaces.org/ui">
+
+	<ui:define name="content">
+
+		<h:form id="form">
+			<p:growl id="growl" autoUpdate="true" showDetail="false" />
+
+			<div class="row">
+
+
+				<!--  FILA 1 COLUMNA 1 -->
+
+				<div class="col-lg-5">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<div class="panel-title">CUENTAS</div>
+								</div>
+								<div class="panel-body">
+									<div class="row" >
+									<p:panelGrid columns="1" styleClass="cmStyle">
+										<div class="col-lg-12">
+									
+											<p:dataTable id="dtUsers" paginator="true" paginatorPosition="bottom"
+											reflow="true" value="#{superView.usuarios}" var="user" rows="10"
+											selectionMode="single" selection="#{superView.usuario}" rowKey="#{user.username}">
+											<p:ajax event="rowSelect" update="form:dtHistorico, form:linkReporte" listener="#{superView.cambioUsuario}" />
+												<p:column headerText="USUARIO">#{user.username}</p:column>
+												<p:column headerText="TIPO" width="120">
+													<h:outputText value="#{user.idTipousuario==1?
+															'Admin':user.idTipousuario==2?'Supervisor':'Usuario'}" /> 
+												</p:column>
+											</p:dataTable>
+										</div>
+									</p:panelGrid>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+				</div>
+
+				<div class="col-lg-7">
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-success">
+								<div class="panel-heading">
+									<div class="panel-title">HISTORIAL</div>
+								</div>
+								<div class="panel-body">
+								<p:fragment>
+									<div class="row">
+									<p:panelGrid id="pnlHistorico" styleClass="noBorder">
+										<div class="col-lg-4">
+											<h:selectOneMenu value="#{superView.mesSel}" styleClass="form-control">
+												<f:selectItems value="#{superView.meses.entrySet()}" var="mes"
+												 	itemLabel="#{mes.value}" itemValue="#{mes.key}" />
+											</h:selectOneMenu>
+										</div>
+										<div class="col-lg-3">
+											<h:selectOneMenu value="#{superView.aniosSel}" styleClass="form-control">
+												<f:selectItems value="#{superView.anios}" var="anio"
+												 	itemLabel="#{anio}" itemValue="#{anio}" />
+											</h:selectOneMenu>
+										</div>
+										<div class="col-lg-3">
+											<p:commandButton value="Buscar" styleClass="btn btn-success form-control" 
+												action="#{superView.buscarHistorico}" update="form:dtHistorico"/>
+										</div>
+										<div class="col-lg-2">
+											<p:commandLink id="linkReporte" styleClass="btn btn-warning form-control" ajax="false"
+														disabled="#{superView.usuario == null || superView.usuario.username == null}">
+												<i class="fa fa-bar-chart"></i>
+												<p:dataExporter type="pdf" target="form:dtHistorico" fileName="#{superView.nombreArchivo()}"
+														preProcessor="#{superView.procesarPDF}"/>
+											</p:commandLink>
+										</div>
+									</p:panelGrid>			
+									</div>
+									</p:fragment>
+									
+									<p:fragment>
+									<div class="row" style="margin-top:10px;">
+									<p:panelGrid columns="1" styleClass="cmStyle">
+										<div class="col-lg-12">
+											<p:dataTable id="dtHistorico" widgetVar="dtHistorico" paginator="true" paginatorPosition="bottom" rows="10"
+													reflow="true" value="#{superView.historicos}" var="hist" 
+													style="text-align:center;" emptyMessage="No hay registros">
+ 												<f:facet name="header"> #{superView.titulo}</f:facet>
+												<p:column headerText="USUARIO"> 
+													<p:outputLabel value="#{hist.username}" /> 
+												</p:column>
+												<p:column headerText="FECHA">
+													<p:outputLabel value="#{superView.convertirFecha(hist.fecha)}" /> 
+												</p:column>
+												<p:column headerText="HORA"> 
+													<p:outputLabel value="#{superView.convertirHora(hist.fecha)}" />
+												</p:column>
+											</p:dataTable>
+										</div>
+									</p:panelGrid>
+									</div>
+									</p:fragment>
+									
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+			</div>
+			<!-- FIN ROW PRINCIPAL -->
+		</h:form>
+	</ui:define>
+</ui:composition>
