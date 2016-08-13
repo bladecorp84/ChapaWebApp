@@ -53,6 +53,7 @@ public class UserView implements Serializable{
 			return false;
 		}
 		return true;
+		//ESTE FUE UN CAMBIO
 	}
 	
 
