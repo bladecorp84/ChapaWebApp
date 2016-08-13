@@ -113,13 +113,15 @@ public class AdminView implements Serializable {
 		}
 	}
 	
-	public void deshabilitarCuentas(){
+	public void cambiarEstatusCuentas(boolean estado){
+		String msj = estado?"habilitadas":"deshabilitadas";
+		String msj2 = estado?"habilitar":"deshabilitar";
 		try {
-			usuarioService.deshabilitarCuentasDeUsuario(clienteSel);
+			usuarioService.cambiarEstadoCuentasDeUsuario(clienteSel, estado);
 			usuarios = usuarioService.obtenerUsuariosPorIdCliente(clienteSel);
-			MensajeGrowl.mostrar("Todas las cuentas han sido deshabilitadas", FacesMessage.SEVERITY_INFO);
+			MensajeGrowl.mostrar("Todas las cuentas han sido "+msj, FacesMessage.SEVERITY_INFO);
 		} catch (Exception e) {
-			MensajeGrowl.mostrar("Error al deshabilitar cuentas de usuario", FacesMessage.SEVERITY_FATAL);
+			MensajeGrowl.mostrar("Error al "+msj2+" las cuentas de usuario", FacesMessage.SEVERITY_FATAL);
 		}
 	}
 	

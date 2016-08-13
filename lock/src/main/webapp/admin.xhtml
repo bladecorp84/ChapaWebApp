@@ -194,13 +194,20 @@
 
 										</p:dataTable>
 									</p:panel>
-									<div class="col-lg-10 col-lg-offset-1">
-												<div class="form-group" style="text-align:center;">
-													<p:commandButton value="DESHABILITAR CUENTAS" 
+									<div class="col-lg-6 col-sm-12"> <!-- col-lg-offset-1 -->
+										<div class="form-group" style="text-align:center;">
+											<p:commandButton value="DESHABILITAR" 
 														styleClass="btn btn-danger form-control" 
-														action="#{adminView.deshabilitarCuentas}" update="dtUsuarios"/>
-												</div>
-											</div>
+														action="#{adminView.cambiarEstatusCuentas(false)}" update="dtUsuarios"/>
+										</div>
+									</div>
+									<div class="col-lg-6 col-sm-12">
+										<div class="form-group" style="text-align:center;">
+											<p:commandButton value="HABILITAR" 
+														styleClass="btn btn-success form-control" 
+														action="#{adminView.cambiarEstatusCuentas(true)}" update="dtUsuarios"/>
+										</div>
+									</div>
 								</p:fragment>
 								</div>
 							</div>

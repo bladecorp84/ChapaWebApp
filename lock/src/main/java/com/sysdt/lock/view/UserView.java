@@ -10,6 +10,7 @@ import javax.faces.bean.ViewScoped;
 
 import org.primefaces.context.RequestContext;
 
+import com.sysdt.lock.dto.UsuarioDTO;
 import com.sysdt.lock.service.UsuarioService;
 import com.sysdt.lock.util.MensajeGrowl;
 
@@ -28,19 +29,20 @@ public class UserView implements Serializable{
 	private String clave1;
 	private String clave2;
 	private String codigo;
+	private UsuarioDTO usuarioDTO;
 	
 	@PostConstruct
 	public void init(){
-		manejoSesionView.obtenerUsuarioEnSesion();
+		usuarioDTO = manejoSesionView.obtenerUsuarioEnSesion();
 	}
 	
 	public void generarCodigo(){
 		if(validarClaves(clave1, clave2)){
 			try {
-				codigo = usuarioService.generarCodigo(clave1, clave2);
+				codigo = usuarioService.generarCodigo(clave1, clave2, usuarioDTO.getUsername());
 				RequestContext.getCurrentInstance().execute("PF('dlg').show();");
 			} catch (Exception e) {
-				MensajeGrowl.mostrar("Ocurrió un error al generar el código", FacesMessage.SEVERITY_FATAL);
+				MensajeGrowl.mostrar("Ocurrió un error al generar el código: "+e.getMessage(), FacesMessage.SEVERITY_FATAL);
 			}
 		}
 	}
@@ -92,6 +94,14 @@ public class UserView implements Serializable{
 
 	public void setManejoSesionView(ManejoSesionView manejoSesionView) {
 		this.manejoSesionView = manejoSesionView;
+	}
+
+	public UsuarioDTO getUsuarioDTO() {
+		return usuarioDTO;
+	}
+
+	public void setUsuarioDTO(UsuarioDTO usuarioDTO) {
+		this.usuarioDTO = usuarioDTO;
 	}
 
 	

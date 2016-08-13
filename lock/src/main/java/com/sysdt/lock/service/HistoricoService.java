@@ -22,11 +22,18 @@ public class HistoricoService {
 	@Autowired
 	private HistoricoMapper historicoMapper;
 	
-	public List<Historico> obtenerHistoricoPorUsuarioYFecha(String username, int mes, int anio){
+	public List<Historico> obtenerHistoricoPorUsuarioYFecha(String username, int mes, int anio) throws Exception{
 		HistoricoExample exHist = new HistoricoExample();
 		exHist.createCriteria().andUsernameEqualTo(username)
 			.andFechaBetween(generarFecha(mes, anio, FECHA_INICIO), generarFecha(mes, anio, FECHA_FIN));
 		return historicoMapper.selectByExample(exHist);
+	}
+	
+	public void insertarHistorico(String username) throws Exception{
+		Historico historico = new Historico();
+		historico.setFecha(new Date());
+		historico.setUsername(username);
+		historicoMapper.insert(historico);
 	}
 	
 	private Date generarFecha(int mes, int anio, int tipoFecha){

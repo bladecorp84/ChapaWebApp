@@ -68,11 +68,15 @@ public class SuperView implements Serializable{
 	
 	public void buscarHistorico(){
 		if(usuario != null && usuario.getUsername() != null){
-			historicos = historicoService.obtenerHistoricoPorUsuarioYFecha(usuario.getUsername(), mesSel, aniosSel);
-			registros = historicos.size();
-			titulo = meses.get(mesSel)+" "+aniosSel;
-			if(registros == 0){
-				MensajeGrowl.mostrar("No se encontraron registros en esa fecha", FacesMessage.SEVERITY_WARN);
+			try{
+				historicos = historicoService.obtenerHistoricoPorUsuarioYFecha(usuario.getUsername(), mesSel, aniosSel);
+				registros = historicos.size();
+				titulo = meses.get(mesSel)+" "+aniosSel;
+				if(registros == 0){
+					MensajeGrowl.mostrar("No se encontraron registros en esa fecha", FacesMessage.SEVERITY_WARN);
+				}
+			}catch(Exception ex){
+				MensajeGrowl.mostrar("Ocurrió una excepción al recuperar el historial", FacesMessage.SEVERITY_FATAL);
 			}
 		}else{
 			MensajeGrowl.mostrar("Primero debe seleccionar una cuenta de usuario", FacesMessage.SEVERITY_ERROR);

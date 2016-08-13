@@ -21,6 +21,8 @@ public class UsuarioService {
 	private UsuarioMapper usuarioMapper;
 	@Autowired
 	private ClienteService clienteService;
+	@Autowired
+	private HistoricoService historicoService;
 	
 	public UsuarioDTO obtenerYvalidarUsuario(String username, String password, String nombreCliente) throws Exception{
 		Usuario usuario = obtenerUsuarioPorUsername(username);
@@ -48,11 +50,11 @@ public class UsuarioService {
 		return false;
 	}
 	
-	public void deshabilitarCuentasDeUsuario(int idCliente) throws Exception{
+	public void cambiarEstadoCuentasDeUsuario(int idCliente, boolean estado) throws Exception{
 		UsuarioExample exUser = new UsuarioExample();
 		exUser.createCriteria().andIdClienteEqualTo(idCliente);
 		Usuario user = new Usuario();
-		user.setEnabled(false);
+		user.setEnabled(estado);
 		usuarioMapper.updateByExampleSelective(user, exUser);
 	}
 	
@@ -64,6 +66,16 @@ public class UsuarioService {
 		return usuarios;
 	}
 	
+	public String generarCodigo(String clave1, String clave2, String username)throws Exception {
+		String codigo = "";
+		try {
+			codigo = convertirLlaves(clave1, clave2);
+		} catch (Exception e) {
+			throw new Exception("Error al convertir claves");
+		}
+		historicoService.insertarHistorico(username);
+		return codigo;
+	}
 	
 	//********* METODOS SIMPLES ******///
 	
@@ -105,9 +117,9 @@ public class UsuarioService {
 		usuario.setUsername(usuario.getUsername().trim().toLowerCase());
 		usuario.setPassword(usuario.getPassword().trim().toLowerCase());
 	}
-
-	public String generarCodigo(String clave1, String clave2)throws Exception {
-		return "C85WER6";
+	
+	private String convertirLlaves(String clave1, String clave2) throws Exception{
+		return "BBBCCC";
 	}
 	
 }
