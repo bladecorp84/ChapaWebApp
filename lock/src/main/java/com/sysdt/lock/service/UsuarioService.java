@@ -1,17 +1,19 @@
 package com.sysdt.lock.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.sysdt.lock.dao.ClienteMapper;
 import com.sysdt.lock.dao.UsuarioMapper;
 import com.sysdt.lock.dto.UsuarioDTO;
 import com.sysdt.lock.model.Cliente;
 import com.sysdt.lock.model.Usuario;
 import com.sysdt.lock.model.UsuarioExample;
+import com.sysdt.lock.model.UsuarioExample.Criteria;
+import com.sysdt.lock.util.Constantes;
 
 @Service
 @Transactional
@@ -23,6 +25,8 @@ public class UsuarioService {
 	private ClienteService clienteService;
 	@Autowired
 	private HistoricoService historicoService;
+	@Autowired
+	private DependenciaService dependenciaService;
 	
 	public UsuarioDTO obtenerYvalidarUsuario(String username, String password, String nombreCliente) throws Exception{
 		Usuario usuario = obtenerUsuarioPorUsername(username);
@@ -66,14 +70,46 @@ public class UsuarioService {
 		return usuarios;
 	}
 	
-	public String generarCodigo(String clave1, String clave2, String username)throws Exception {
+	public List<Usuario> obtenerOperadoresPorSupervisor(String username){
+		List<String> dependencias = dependenciaService.obtenerDependenciasPorUsuario(username, Constantes.TipoUsuario.SUPERVISOR);
+		dependencias.add(username);
+		UsuarioExample exUser = new UsuarioExample();
+		exUser.createCriteria().andUsernameIn(dependencias);
+		return usuarioMapper.selectByExample(exUser);
+	}
+	
+	public List<String> obtenerListaDependientesPorTipo(int idCliente, int idTipoUsuario){
+		List<String> dependientes = new ArrayList<String>();
+		UsuarioExample exUser = new UsuarioExample();
+		Criteria criteria = exUser.createCriteria();
+		criteria.andIdClienteEqualTo(idCliente);
+		if(idTipoUsuario == Constantes.TipoUsuario.SUPERVISOR){
+			criteria.andIdTipousuarioEqualTo(Constantes.TipoUsuario.OPERADOR);
+		}else if(idTipoUsuario == Constantes.TipoUsuario.OPERADOR){
+			criteria.andIdTipousuarioEqualTo(Constantes.TipoUsuario.SUPERVISOR);
+		}
+		List<Usuario> usuarios = usuarioMapper.selectByExample(exUser);
+		for (Usuario usuario : usuarios) {
+			dependientes.add(usuario.getUsername());
+		}
+		return dependientes;
+	}
+	
+	public String generarCodigo(String clave1, String clave2, String username, String placasEco)throws Exception {
 		String codigo = "";
 		try {
 			codigo = convertirLlaves(clave1, clave2);
+			if(codigo != null){
+				historicoService.insertarHistorico(username, placasEco, true);
+			}else{
+				historicoService.insertarHistorico(username, placasEco, false);
+				codigo = "";
+			}
 		} catch (Exception e) {
+			historicoService.insertarHistorico(username, placasEco, false);
 			throw new Exception("Error al convertir claves");
 		}
-		historicoService.insertarHistorico(username);
+		
 		return codigo;
 	}
 	
@@ -119,7 +155,8 @@ public class UsuarioService {
 	}
 	
 	private String convertirLlaves(String clave1, String clave2) throws Exception{
-		return "BBBCCC";
+//		return "BBBCCC";
+		return null;
 	}
 	
 }

@@ -11,73 +11,119 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
 	<h:outputStylesheet library="css" name="bootstrap.min.css" />
 	<h:outputStylesheet library="css" name="estilos.css" />
-	<!-- 	<h:outputScript library="js" name="index.js" /> -->
+<!-- 	<h:outputScript library="js" name="index.js" /> -->
 	<link rel="stylesheet"
 		href="resources/vendors/fontawesome/css/font-awesome.min.css" />
 	<!-- 		<h:outputStylesheet library="css" name="/vendors/fontawesome/css/font-awesome.min.css" /> -->
-	<link rel="shortcut icon" href="resources/imgs/#{manejoSesionView.usuarioDTO.cliente.logo}" type="image/x-png" />
+	<link rel="shortcut icon"
+		href="resources/imgs/#{manejoSesionView.usuarioDTO.cliente.logo}"
+		type="image/x-png" />
+
+	<!-- 	<h:outputScript library="js" value="calendar_es.js"></h:outputScript> -->
+	<script type="text/javascript" src="resources/js/calendar_es.js"></script>
+	<script type="text/javascript" src="resources/js/bootstrap.min.js"></script>
 	<title><ui:insert name="title">Lock #{manejoSesionView.usuarioDTO.cliente.nombre}</ui:insert></title>
 </h:head>
 <h:body>
 
-	<div class="container">
+	<div class="container" style="margin:0 auto; width:100%;">
 
 		<ui:insert name="header">
-		<h:form>
-			<div class="navbar navbar-default navbar-static-top"
-				role="navigation">
-				<div class="container-fluid">
-					<div class="navbar-header">
-						<a class="navbar-brand" href="#">
-							<h:outputText value="#{manejoSesionView.usuarioDTO.cliente.nombre}" />	
-						</a>
-					</div>
-				<c:if test="${!pageContext.response.committed}">
-					<ul class="nav navbar-nav navbar-right"
-						style="margin: 10px 0 0 -10px;">
+			<h:form id="form1">
+				
 
-						<li><p:commandButton styleClass="btn btn-danger btn-nav"
-								value="Cerrar Sesión"
-								action="#{manejoSesionView.cerrarSesionUsuario}" /></li>
-					</ul>
-					<ul class="nav navbar-nav navbar-right"
-						style="margin: 10px 50px 0 -10px;">
-						<c:if test="#{manejoSesionView.usuarioDTO.idTipousuario != 3}">
-							<li><p:commandButton styleClass="btn btn-default"
-									value="Generación de Codigos"
-									action="#{manejoSesionView.redirigir(1)}" /></li>
-						</c:if>
-					</ul>
-					<ul class="nav navbar-nav navbar-right"
-						style="margin: 10px 50px 0 -10px;">
-						<c:if test="#{manejoSesionView.usuarioDTO.idTipousuario != 3}">
-							<li><p:commandButton styleClass="btn btn-default"
-									value="Reportes"
-									action="#{manejoSesionView.redirigir(2)}" /></li>
-						</c:if>
-					</ul>
-					<ul class="nav navbar-nav navbar-right"
-						style="margin: 10px 50px 0 -10px;">
-						<c:if test="#{manejoSesionView.usuarioDTO.idTipousuario == 1}">
-							<li><p:commandButton styleClass="btn btn-default"
-									value="Admin"
-									action="#{manejoSesionView.redirigir(3)}" /></li>
-						</c:if>
-					</ul>
-					</c:if>
-				</div>
-			</div>
+
+
+				<nav class="navbar navbar-default">
+<!-- 					<div class="container-fluid"> -->
+						<div class="navbar-header">
+							<button type="button" class="navbar-toggle collapsed"
+								data-toggle="collapse"
+								data-target="#trgt"
+								aria-expanded="false">
+								<span class="sr-only">Toggle navigation</span> <span
+									class="icon-bar"></span> <span class="icon-bar"></span> <span
+									class="icon-bar"></span>
+							</button>
+							<a class="navbar-brand" href="#">
+								<h:outputText value="#{manejoSesionView.usuarioDTO.cliente.nombre}" />
+							</a>
+						</div>
+
+						<div class="navbar-collapse collapse"
+							id="trgt" aria-expanded="false"
+							style="height: 1px;">
+							<ul class="nav navbar-nav navbar-right">
+								<c:if test="#{manejoSesionView.usuarioDTO.idTipousuario == 1}">
+									<li>
+										<p:commandLink id="linkAdmin" 
+											value="Administración" action="#{manejoSesionView.redirigir(3)}" />
+									</li>
+								</c:if>
+								<c:if test="#{manejoSesionView.usuarioDTO.idTipousuario != 3}">
+									<li>
+										<p:commandLink id="linkReportes" 
+											value="Reportes" action="#{manejoSesionView.redirigir(2)}" />
+									</li>
+								</c:if>
+								<c:if test="#{manejoSesionView.usuarioDTO.idTipousuario != 3}">
+									<li>
+										<p:commandLink id="linkCodigos" 
+											value="Generación de Codigos"
+											action="#{manejoSesionView.redirigir(1)}" />
+									</li>
+								</c:if>
+								<li >
+									<p:commandLink styleClass="btn btn-danger"
+										value="Cerrar Sesión"
+										action="#{manejoSesionView.cerrarSesionUsuario}" />
+								</li>
+								
+							</ul>
+						</div>
+<!-- 					</div> -->
+				</nav>
+
 			</h:form>
 		</ui:insert>
 		<ui:insert name="content">
 			NO CONTENT
 		</ui:insert>
 		<ui:insert name="footer">
-			
+
 		</ui:insert>
 		<ui:insert name="scripts">
-			
+			<script>
+// 				$(document).ready(function(){
+// 					console.log("INICIO JQUERY");
+					
+// 					$('#form1\\:linkAdmin').click(function(){console.log("ADMIN");
+// 						quitarActive();
+// 						$('#form1\\:linkAdmin').addClass('active');
+// 					});
+					
+// 					$('#linkReportes').click(function(){console.log("REPORTES");
+// 						quitarActive();
+// 						$('#linkReportes').addClass('active');
+// 					});
+					
+// 					$('#linkCodigos').click(function(){console.log("CODIGOS");
+// 						quitarActive();
+// 						$('#linkCodigos').addClass('active');
+// 					});
+					
+// 					function quitarActive(){
+// 						$('#linkAdmin').removeClass('active');
+// 						$('#linkReportes').removeClass('active');
+// 						$('#linkCodigos').removeClass('active');
+// 					}
+					
+					
+// 				});
+			</script>
 		</ui:insert>
+		
+		
 	</div>
 
 </h:body>

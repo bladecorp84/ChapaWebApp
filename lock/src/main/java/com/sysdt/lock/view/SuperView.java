@@ -20,11 +20,11 @@ import com.lowagie.text.FontFactory;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.sysdt.lock.dto.UsuarioDTO;
-import com.sysdt.lock.enums.TipoUsuarioEnum;
 import com.sysdt.lock.model.Historico;
 import com.sysdt.lock.model.Usuario;
 import com.sysdt.lock.service.HistoricoService;
 import com.sysdt.lock.service.UsuarioService;
+import com.sysdt.lock.util.Constantes;
 import com.sysdt.lock.util.MensajeGrowl;
 
 @ManagedBean
@@ -45,23 +45,30 @@ public class SuperView implements Serializable{
 	private Usuario usuario;
 	private UsuarioDTO usuarioDTO;
 	
-	private Map<Integer, String> meses; 
-	private List<Integer> anios;
-	private int aniosSel;
-	private int mesSel;
+	private Date fechaIni;
+	private Date fechaFin;
+	private int codigosExito;
+	private int codigosError;
 	private int registros;
 	private String titulo;
+	private String tituloReporte;
 	
 	@PostConstruct
 	public void init(){
 		usuarioDTO = manejoSesionView.obtenerUsuarioEnSesion();
-		if(usuarioDTO == null || usuarioDTO.getIdTipousuario() == TipoUsuarioEnum.USUARIO.getId()){
+		if(usuarioDTO == null || usuarioDTO.getIdTipousuario() == Constantes.TipoUsuario.OPERADOR){
 			manejoSesionView.cerrarSesionUsuario();
 		}else{
-			generarMesesYanios();
-			usuarios = usuarioService.obtenerUsuariosPorIdClienteSinPass(usuarioDTO.getIdCliente());
 			titulo = "";
 			historicos = new ArrayList<Historico>();
+			fechaIni = new Date();
+			fechaFin = new Date();
+			if(usuarioDTO.getIdTipousuario() == Constantes.TipoUsuario.ADMINISTRADOR || 
+					usuarioDTO.getIdTipousuario() == Constantes.TipoUsuario.MASTER){
+				usuarios = usuarioService.obtenerUsuariosPorIdClienteSinPass(usuarioDTO.getIdCliente());
+			}else{
+				usuarios = usuarioService.obtenerOperadoresPorSupervisor(usuarioDTO.getUsername());
+			}
 		}
 		
 	}
@@ -69,9 +76,12 @@ public class SuperView implements Serializable{
 	public void buscarHistorico(){
 		if(usuario != null && usuario.getUsername() != null){
 			try{
-				historicos = historicoService.obtenerHistoricoPorUsuarioYFecha(usuario.getUsername(), mesSel, aniosSel);
+				historicos = historicoService.obtenerHistoricoPorUsuarioYFecha(usuario.getUsername(), fechaIni, fechaFin);
 				registros = historicos.size();
-				titulo = meses.get(mesSel)+" "+aniosSel;
+				calcularRegistros();
+				String tituloContenido = nombreArchivo();
+				titulo = "PERIODO "+tituloContenido;
+				tituloReporte = "CODIGOS DEL "+tituloContenido+"_"+usuario.getUsername();
 				if(registros == 0){
 					MensajeGrowl.mostrar("No se encontraron registros en esa fecha", FacesMessage.SEVERITY_WARN);
 				}
@@ -87,15 +97,32 @@ public class SuperView implements Serializable{
 		historicos.clear();
 	}
 	
+	
+	
 	public void procesarPDF(Object documento){
 		try{
 			Document pdf = (Document)documento;
 			pdf.open();
 			pdf.setPageSize(PageSize.LETTER);
-			pdf.add(new Paragraph("REPORTE "+meses.get(mesSel)+" "+aniosSel, FontFactory.getFont(FontFactory.TIMES_BOLD,16,Color.RED)));
-			pdf.add(new Paragraph("."));
+			pdf.add(new Paragraph("REPORTE DEL "+nombreArchivo(), FontFactory.getFont(FontFactory.TIMES_BOLD,16,Color.DARK_GRAY)));
+			pdf.add(new Paragraph("TOTAL CODIGOS: "+registros, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.LIGHT_GRAY)));
+			pdf.add(new Paragraph("CORRECTOS: "+codigosExito, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.LIGHT_GRAY)));
+			pdf.add(new Paragraph("FALLIDOS: "+codigosError, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.LIGHT_GRAY)));
+			pdf.add(new Paragraph(" "));
 		}catch(Exception ex){
 			MensajeGrowl.mostrar("Error al generar el reporte", FacesMessage.SEVERITY_FATAL);
+		}
+	}
+	
+	public void calcularRegistros(){
+		codigosExito = 0;
+		codigosError = 0;
+		for(Historico historico : historicos){
+			if(historico.getEstado()){
+				codigosExito += 1;
+			}else{
+				codigosError += 1;
+			}
 		}
 	}
 	
@@ -115,34 +142,19 @@ public class SuperView implements Serializable{
 		int second = cal.get(Calendar.SECOND);
 		return (hour<10?"0"+hour:hour)+":"+ (min<10?"0"+min:min)+ ":"+(second<10?"0"+second:second);
 	}
-	
-	private void generarMesesYanios(){
-		generarMeses();
-		generarAnios();
-	}
-	
-	private void generarMeses(){
-		meses = new LinkedHashMap<Integer, String>();
-		meses.put(1, "ENERO");meses.put(2, "FEBRERO");
-		meses.put(3, "MARZO");meses.put(4, "ABRIL");
-		meses.put(5, "MAYO");meses.put(6, "JUNIO");
-		meses.put(7, "JULIO");meses.put(8, "AGOSTO");
-		meses.put(9, "SEPTIEMBRE");meses.put(10, "OCTUBRE");
-		meses.put(11, "NOVIEMBRE");meses.put(12, "DICIEMBRE");
-		Calendar cal = Calendar.getInstance();
-		mesSel = cal.get(Calendar.MONTH)+1;
-	}
-	
-	private void generarAnios(){
-		Calendar cal = Calendar.getInstance();
-		int anioActual = cal.get(Calendar.YEAR);
-		anios = new ArrayList<Integer>();
-		anios.add(anioActual);
-		anios.add(--anioActual);
-	}
-	
+		
 	public String nombreArchivo(){
-		return "Codigos_"+meses.get(mesSel)+"_"+aniosSel+"_"+usuario.getUsername();
+		Calendar cal1 = Calendar.getInstance();
+		cal1.setTime(fechaIni);
+		Calendar cal2 = Calendar.getInstance();
+		cal2.setTime(fechaFin);
+		String periodo = cal1.get(Calendar.DAY_OF_MONTH)+"-";
+		periodo += (cal1.get(Calendar.MONTH)+1)+"-";
+		periodo += cal1.get(Calendar.YEAR);
+		periodo += " AL "+cal2.get(Calendar.DAY_OF_MONTH)+"-";
+		periodo += (cal2.get(Calendar.MONTH)+1)+"-";
+		periodo += cal2.get(Calendar.YEAR);
+		return periodo;
 	}
 
 	public ManejoSesionView getManejoSesionView() {
@@ -193,38 +205,6 @@ public class SuperView implements Serializable{
 		this.usuarioDTO = usuarioDTO;
 	}
 
-	public Map<Integer, String> getMeses() {
-		return meses;
-	}
-
-	public void setMeses(Map<Integer, String> meses) {
-		this.meses = meses;
-	}
-
-	public List<Integer> getAnios() {
-		return anios;
-	}
-
-	public void setAnios(List<Integer> anios) {
-		this.anios = anios;
-	}
-
-	public int getAniosSel() {
-		return aniosSel;
-	}
-
-	public void setAniosSel(int aniosSel) {
-		this.aniosSel = aniosSel;
-	}
-
-	public int getMesSel() {
-		return mesSel;
-	}
-
-	public void setMesSel(int mesSel) {
-		this.mesSel = mesSel;
-	}
-
 	public Usuario getUsuario() {
 		return usuario;
 	}
@@ -247,6 +227,30 @@ public class SuperView implements Serializable{
 
 	public void setTitulo(String titulo) {
 		this.titulo = titulo;
+	}
+
+	public Date getFechaIni() {
+		return fechaIni;
+	}
+
+	public void setFechaIni(Date fechaIni) {
+		this.fechaIni = fechaIni;
+	}
+
+	public Date getFechaFin() {
+		return fechaFin;
+	}
+
+	public void setFechaFin(Date fechaFin) {
+		this.fechaFin = fechaFin;
+	}
+
+	public String getTituloReporte() {
+		return tituloReporte;
+	}
+
+	public void setTituloReporte(String tituloReporte) {
+		this.tituloReporte = tituloReporte;
 	}
 
 }

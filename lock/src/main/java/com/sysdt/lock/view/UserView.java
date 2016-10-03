@@ -28,6 +28,7 @@ public class UserView implements Serializable{
 	
 	private String clave1;
 	private String clave2;
+	private String placasEco;
 	private String codigo;
 	private UsuarioDTO usuarioDTO;
 	
@@ -37,9 +38,9 @@ public class UserView implements Serializable{
 	}
 	
 	public void generarCodigo(){
-		if(validarClaves(clave1, clave2)){
+		if(validarClaves()){
 			try {
-				codigo = usuarioService.generarCodigo(clave1, clave2, usuarioDTO.getUsername());
+				codigo = usuarioService.generarCodigo(clave1, clave2, usuarioDTO.getUsername(), placasEco);
 				RequestContext.getCurrentInstance().execute("PF('dlg').show();");
 			} catch (Exception e) {
 				MensajeGrowl.mostrar("Ocurrió un error al generar el código: "+e.getMessage(), FacesMessage.SEVERITY_FATAL);
@@ -47,13 +48,16 @@ public class UserView implements Serializable{
 		}
 	}
 	
-	private boolean validarClaves(String c1, String c2){
-		if(c1.trim().isEmpty() || c2.trim().isEmpty()){
+	private boolean validarClaves(){
+		if(clave1.trim().isEmpty() || clave2.trim().isEmpty()){
 			MensajeGrowl.mostrar("Debe ingresar las dos claves", FacesMessage.SEVERITY_ERROR);
 			return false;
 		}
+		if(placasEco.trim().isEmpty()){
+			MensajeGrowl.mostrar("Debe ingresar las placas o número económico de la unidad.", FacesMessage.SEVERITY_ERROR);
+			return false;
+		}
 		return true;
-		//ESTE FUE UN CAMBIO
 	}
 	
 
@@ -103,6 +107,14 @@ public class UserView implements Serializable{
 
 	public void setUsuarioDTO(UsuarioDTO usuarioDTO) {
 		this.usuarioDTO = usuarioDTO;
+	}
+
+	public String getPlacasEco() {
+		return placasEco;
+	}
+
+	public void setPlacasEco(String placasEco) {
+		this.placasEco = placasEco;
 	}
 
 	

@@ -16,40 +16,41 @@ import com.sysdt.lock.model.HistoricoExample;
 @Transactional
 public class HistoricoService {
 	
-	private static final int FECHA_INICIO = 1;
-	private static final int FECHA_FIN = 2;
+	private final int FECHA_INICIO = 1;
+	private final int FECHA_FIN = 2;
 	
 	@Autowired
 	private HistoricoMapper historicoMapper;
 	
-	public List<Historico> obtenerHistoricoPorUsuarioYFecha(String username, int mes, int anio) throws Exception{
+	public List<Historico> obtenerHistoricoPorUsuarioYFecha(String username, Date fechaIni, Date fechaFin) throws Exception{
 		HistoricoExample exHist = new HistoricoExample();
 		exHist.createCriteria().andUsernameEqualTo(username)
-			.andFechaBetween(generarFecha(mes, anio, FECHA_INICIO), generarFecha(mes, anio, FECHA_FIN));
+			.andFechaBetween(generarFecha(fechaIni, FECHA_INICIO), generarFecha(fechaFin, FECHA_FIN));
 		return historicoMapper.selectByExample(exHist);
 	}
 	
-	public void insertarHistorico(String username) throws Exception{
+	public void insertarHistorico(String username, String placasEco, boolean estado) throws Exception{
 		Historico historico = new Historico();
 		historico.setFecha(new Date());
 		historico.setUsername(username);
+		historico.setPlacasEco(placasEco.toUpperCase());
+		historico.setEstado(estado);
 		historicoMapper.insert(historico);
 	}
 	
-	private Date generarFecha(int mes, int anio, int tipoFecha){
+	private Date generarFecha(Date fecha, int tipoFecha){
 		Calendar cal = Calendar.getInstance();
-		cal.set(Calendar.YEAR, anio);
-		cal.set(Calendar.MONTH, mes-1);
+		cal.setTime(fecha);
 		if(tipoFecha == FECHA_INICIO){
-			cal.set(Calendar.DAY_OF_MONTH, 1);
 			cal.set(Calendar.HOUR, 0);
 			cal.set(Calendar.MINUTE, 0);
-			cal.set(Calendar.SECOND, 1);
-		}else{
-			cal.set(Calendar.DAY_OF_MONTH, cal.getActualMaximum(Calendar.DAY_OF_MONTH));
+			cal.set(Calendar.SECOND, 0);
+			cal.set(Calendar.MILLISECOND, 1);
+		}else if(tipoFecha == FECHA_FIN){
 			cal.set(Calendar.HOUR, 23);
 			cal.set(Calendar.MINUTE, 59);
 			cal.set(Calendar.SECOND, 59);
+			cal.set(Calendar.MILLISECOND, 999);
 		}
 		return cal.getTime();
 	}

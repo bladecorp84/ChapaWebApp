@@ -29,7 +29,7 @@
     </appender>
 
     <root>
-        <priority value="INFO"></priority>
+        <priority value="DEBUG"></priority>
         <appender-ref ref="FILE" />
        	<appender-ref ref="chapaLog" />
     </root>

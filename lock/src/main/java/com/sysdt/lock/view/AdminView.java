@@ -1,6 +1,7 @@
 package com.sysdt.lock.view;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -9,14 +10,16 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import com.sun.faces.util.MostlySingletonSet;
 import com.sysdt.lock.dto.UsuarioDTO;
-import com.sysdt.lock.enums.TipoUsuarioEnum;
 import com.sysdt.lock.model.Cliente;
 import com.sysdt.lock.model.TipoUsuario;
 import com.sysdt.lock.model.Usuario;
 import com.sysdt.lock.service.CatalogoService;
 import com.sysdt.lock.service.ClienteService;
+import com.sysdt.lock.service.DependenciaService;
 import com.sysdt.lock.service.UsuarioService;
+import com.sysdt.lock.util.Constantes;
 import com.sysdt.lock.util.MensajeGrowl;
 
 @ManagedBean
@@ -32,6 +35,8 @@ public class AdminView implements Serializable {
 	private UsuarioService usuarioService;
 	@ManagedProperty("#{catalogoService}")
 	private CatalogoService catalogoService;
+	@ManagedProperty("#{dependenciaService}")
+	private DependenciaService dependenciaService;
 	
 	private List<Cliente> clientes;
 	private List<TipoUsuario> tiposUsuario;
@@ -41,10 +46,17 @@ public class AdminView implements Serializable {
 	private Usuario usuarioSel;
 	private int clienteSel;
 	
+	//SECCION ASOCIADOS
+	private String nuevoAsociado;
+	private String asociado;
+	private List<String> listaAsociados;
+	private List<String> posiblesAsociados;
+	private boolean disableAsociado;
+	
 	@PostConstruct
 	public void init(){
 		UsuarioDTO userDTO = manejoSesionView.obtenerUsuarioEnSesion();
-		if(userDTO == null || userDTO.getIdTipousuario() != TipoUsuarioEnum.ADMINISTRADOR.getId()){
+		if(userDTO == null || userDTO.getIdTipousuario() != Constantes.TipoUsuario.ADMINISTRADOR){
 			manejoSesionView.cerrarSesionUsuario();
 		}else{
 			cliente = new Cliente();
@@ -54,6 +66,9 @@ public class AdminView implements Serializable {
 			tiposUsuario = catalogoService.obtenerTiposUsuario();
 			clienteSel = clientes.get(0).getId();
 			usuarios = usuarioService.obtenerUsuariosPorIdCliente(clienteSel);
+			disableAsociado = true;
+			posiblesAsociados = new ArrayList<String>();
+			listaAsociados = new ArrayList<String>();
 		}
 	}
 	
@@ -128,6 +143,9 @@ public class AdminView implements Serializable {
 	public void cambioCliente(){
 		usuarios = usuarioService.obtenerUsuariosPorIdCliente(clienteSel);
 		resetUsuarioSel();
+		listaAsociados.clear();
+		posiblesAsociados.clear();
+		disableAsociado = true;
 	}
 	
 	public boolean validarUsuario(){
@@ -168,6 +186,54 @@ public class AdminView implements Serializable {
 			return false;
 		}
 		return true;
+	}
+	
+	public void agregarAsociado(){
+		String nuevoAs = nuevoAsociado;
+		boolean repetido = false;
+		for(String aso : listaAsociados){
+			if(aso.contentEquals(nuevoAs)){
+				repetido = true;
+				break;
+			}
+		}
+		if(!repetido){
+			listaAsociados.add(nuevoAs);
+		}else{
+			MensajeGrowl.mostrar("El asociado ya se encuentra en la lista", FacesMessage.SEVERITY_ERROR);
+		}
+		
+	}
+	
+	public void eliminarAsociado(){
+		for(String as : listaAsociados){
+			if(asociado.contentEquals(as)){
+				listaAsociados.remove(as);
+				break;
+			}
+		}
+	}
+	
+	public void guardarListaAsociados(){
+		try {
+			dependenciaService.guardarDependencias(listaAsociados, usuarioSel.getUsername(), usuarioSel.getIdTipousuario());
+			MensajeGrowl.mostrar("Asociados guardados correctamente", FacesMessage.SEVERITY_INFO);
+		} catch (Exception e) {
+			MensajeGrowl.mostrar("Ocurrió una excepción al guardar asociados", FacesMessage.SEVERITY_FATAL);
+		}
+	}
+	
+	public void obtenerDependientes(){
+		if(usuarioSel.getIdTipousuario() == Constantes.TipoUsuario.OPERADOR || 
+				usuarioSel.getIdTipousuario() == Constantes.TipoUsuario.SUPERVISOR){
+			disableAsociado = false;
+			posiblesAsociados = usuarioService.obtenerListaDependientesPorTipo(clienteSel, usuarioSel.getIdTipousuario());
+			listaAsociados = dependenciaService.obtenerDependenciasPorUsuario(usuarioSel.getUsername(), usuarioSel.getIdTipousuario());
+		}else{
+			disableAsociado = true;
+			posiblesAsociados.clear();
+			listaAsociados.clear();
+		}
 	}
 	
 	private boolean validarCliente(){
@@ -270,6 +336,54 @@ public class AdminView implements Serializable {
 
 	public void setUsuarioSel(Usuario usuarioSel) {
 		this.usuarioSel = usuarioSel;
+	}
+
+	public DependenciaService getDependenciaService() {
+		return dependenciaService;
+	}
+
+	public void setDependenciaService(DependenciaService dependenciaService) {
+		this.dependenciaService = dependenciaService;
+	}
+
+	public String getNuevoAsociado() {
+		return nuevoAsociado;
+	}
+
+	public void setNuevoAsociado(String nuevoAsociado) {
+		this.nuevoAsociado = nuevoAsociado;
+	}
+
+	public List<String> getListaAsociados() {
+		return listaAsociados;
+	}
+
+	public void setListaAsociados(List<String> listaAsociados) {
+		this.listaAsociados = listaAsociados;
+	}
+
+	public List<String> getPosiblesAsociados() {
+		return posiblesAsociados;
+	}
+
+	public void setPosiblesAsociados(List<String> posiblesAsociados) {
+		this.posiblesAsociados = posiblesAsociados;
+	}
+
+	public String getAsociado() {
+		return asociado;
+	}
+
+	public void setAsociado(String asociado) {
+		this.asociado = asociado;
+	}
+
+	public boolean isDisableAsociado() {
+		return disableAsociado;
+	}
+
+	public void setDisableAsociado(boolean disableAsociado) {
+		this.disableAsociado = disableAsociado;
 	}
 	
 

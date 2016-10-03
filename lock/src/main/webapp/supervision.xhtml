@@ -18,7 +18,7 @@
 				<div class="col-lg-5">
 					<div class="row">
 						<div class="col-lg-12">
-							<div class="panel panel-success">
+							<div class="panel panel-primary">
 								<div class="panel-heading">
 									<div class="panel-title">CUENTAS</div>
 								</div>
@@ -34,7 +34,7 @@
 												<p:column headerText="USUARIO">#{user.username}</p:column>
 												<p:column headerText="TIPO" width="120">
 													<h:outputText value="#{user.idTipousuario==1?
-															'Admin':user.idTipousuario==2?'Supervisor':'Usuario'}" /> 
+															'Admin':user.idTipousuario==2?'Supervisor':user.idTipousuario==3?'Operador':'Master'}" /> 
 												</p:column>
 											</p:dataTable>
 										</div>
@@ -49,7 +49,7 @@
 				<div class="col-lg-7">
 					<div class="row">
 						<div class="col-lg-12">
-							<div class="panel panel-success">
+							<div class="panel panel-primary">
 								<div class="panel-heading">
 									<div class="panel-title">HISTORIAL</div>
 								</div>
@@ -57,30 +57,34 @@
 								<p:fragment>
 									<div class="row">
 									<p:panelGrid id="pnlHistorico" styleClass="noBorder">
-										<div class="col-lg-4">
-											<h:selectOneMenu value="#{superView.mesSel}" styleClass="form-control">
-												<f:selectItems value="#{superView.meses.entrySet()}" var="mes"
-												 	itemLabel="#{mes.value}" itemValue="#{mes.key}" />
-											</h:selectOneMenu>
+										<div class="form form-inline">
+										<div class="form-group">
+											<label for="calIni" style="margin-left: 5px;margin-right: 5px;"> Inicio </label>
+											<p:calendar id="calIni" value="#{superView.fechaIni}" size="9" pattern="dd/MM/yy"
+												placeholder="Inicio" locale="es" readonlyInput="true" showOn="button">
+												<p:ajax event="dateSelect" update="calFin"/>
+											</p:calendar>
+<!-- 											<input type="text" placeholder="INICIO" class="form-control" /> -->
 										</div>
-										<div class="col-lg-3">
-											<h:selectOneMenu value="#{superView.aniosSel}" styleClass="form-control">
-												<f:selectItems value="#{superView.anios}" var="anio"
-												 	itemLabel="#{anio}" itemValue="#{anio}" />
-											</h:selectOneMenu>
+										<div class="form-group">
+											<label for="calFin" style="margin-left: 5px;margin-right: 5px;"> Fin </label>
+											<p:calendar id="calFin" value="#{superView.fechaFin}" size="9" readonlyInput="true" pattern="dd/MM/yy"
+												placeholder="Fin" locale="es" mindate="#{superView.fechaIni}" showOn="button"/>
+<!-- 											<input type="text" placeholder="FIN" class="form-control" /> -->
 										</div>
-										<div class="col-lg-3">
+										<div class="form-group col-md-2 col-sm-12 col-xs-12">
 											<p:commandButton value="Buscar" styleClass="btn btn-success form-control" 
 												action="#{superView.buscarHistorico}" update="form:dtHistorico"/>
 										</div>
-										<div class="col-lg-2">
+										<div class="form-group col-md-2 col-sm-12 col-xs-12">
 											<p:commandLink id="linkReporte" styleClass="btn btn-warning form-control" ajax="false"
 														disabled="#{superView.usuario == null || superView.usuario.username == null}">
 												<i class="fa fa-bar-chart"></i>
-												<p:dataExporter type="pdf" target="form:dtHistorico" fileName="#{superView.nombreArchivo()}"
+												<p:dataExporter type="pdf" target="form:dtHistorico" fileName="#{superView.tituloReporte}"
 														preProcessor="#{superView.procesarPDF}"/>
 											</p:commandLink>
 										</div>
+										</div> <!--  .FIN FORM -->
 									</p:panelGrid>			
 									</div>
 									</p:fragment>
@@ -102,6 +106,9 @@
 												<p:column headerText="HORA"> 
 													<p:outputLabel value="#{superView.convertirHora(hist.fecha)}" />
 												</p:column>
+												<p:column headerText="UNIDAD"> 
+													<p:outputLabel value="#{hist.placasEco}" />
+												</p:column>
 											</p:dataTable>
 										</div>
 									</p:panelGrid>
@@ -117,5 +124,6 @@
 			</div>
 			<!-- FIN ROW PRINCIPAL -->
 		</h:form>
+		
 	</ui:define>
 </ui:composition>

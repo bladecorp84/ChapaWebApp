@@ -14,10 +14,10 @@ import javax.faces.context.FacesContext;
 import org.primefaces.context.RequestContext;
 
 import com.sysdt.lock.dto.UsuarioDTO;
-import com.sysdt.lock.enums.TipoUsuarioEnum;
 import com.sysdt.lock.model.Cliente;
 import com.sysdt.lock.service.ClienteService;
 import com.sysdt.lock.service.UsuarioService;
+import com.sysdt.lock.util.Constantes;
 import com.sysdt.lock.util.MensajeGrowl;
 
 @ManagedBean
@@ -63,11 +63,12 @@ public class LoginView implements Serializable{
 			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
 			Map<String, Object> sessionMap = externalContext.getSessionMap();
 			sessionMap.put("usuario",usuarioDTO);
-			if(usuarioDTO.getIdTipousuario() == TipoUsuarioEnum.ADMINISTRADOR.getId()){
+			if(usuarioDTO.getIdTipousuario() == Constantes.TipoUsuario.ADMINISTRADOR){
 				externalContext.redirect("admin.xhtml");
-			}else if(usuarioDTO.getIdTipousuario() == TipoUsuarioEnum.SUPERVISOR.getId()){
+			}else if(usuarioDTO.getIdTipousuario() == Constantes.TipoUsuario.SUPERVISOR ||
+							usuarioDTO.getIdTipousuario() == Constantes.TipoUsuario.MASTER){
 				externalContext.redirect("supervision.xhtml");
-			}else if(usuarioDTO.getIdTipousuario() == TipoUsuarioEnum.USUARIO.getId()){
+			}else if(usuarioDTO.getIdTipousuario() == Constantes.TipoUsuario.OPERADOR){
 				externalContext.redirect("codigos.xhtml");
 			}else{
 				externalContext.redirect("login.xhtml");

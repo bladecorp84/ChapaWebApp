@@ -18,7 +18,7 @@
 				<div class="col-lg-4">
 					<div class="row">
 					<div class="col-lg-12">
-						<div class="panel panel-success">
+						<div class="panel panel-primary">
 							<div class="panel-heading">
 								<h3 class="panel-title">AGREGAR USUARIO</h3>
 							</div>
@@ -34,7 +34,7 @@
 													<p:inputText id="inputUsername" styleClass="form-control"
 														style="text-align:center;"
 														value="#{adminView.usuario.username}" />
-													<span class="input-group-addon"><i class="fa fa-key"></i>
+													<span class="input-group-addon"><i class="fa fa-user"></i>
 													</span>
 												</div>
 											</div>
@@ -47,7 +47,7 @@
 													<p:inputText id="inputPassword" styleClass="form-control"
 														style="text-align:center;"
 														value="#{adminView.usuario.password}" />
-													<span class="input-group-addon"><i class="fa fa-key"></i>
+													<span class="input-group-addon"><i class="fa fa-lock"></i>
 													</span>
 												</div>
 											</div>
@@ -95,7 +95,7 @@
 					<!-- FILA 2 COLUMNA 1 -->
 					<div class="row">
 					<div class="col-lg-12">
-						<div class="panel panel-success">
+						<div class="panel panel-primary">
 							<div class="panel-heading">
 								<h3 class="panel-title">AGREGAR CLIENTE</h3>
 							</div>
@@ -111,7 +111,7 @@
 													<p:inputText id="inputClienteNombre"
 														styleClass="form-control" style="text-align:center;"
 														value="#{adminView.cliente.nombre}" />
-													<span class="input-group-addon"><i class="fa fa-key"></i>
+													<span class="input-group-addon"><i class="fa fa-building"></i>
 													</span>
 												</div>
 											</div>
@@ -124,7 +124,7 @@
 													<p:inputText id="inputClienteImagen"
 														styleClass="form-control" style="text-align:center;"
 														value="#{adminView.cliente.logo}" />
-													<span class="input-group-addon"><i class="fa fa-key"></i>
+													<span class="input-group-addon"><i class="fa fa-picture-o"></i>
 													</span>
 												</div>
 											</div>
@@ -152,7 +152,7 @@
 				<div class="col-lg-5">
 					<div class="row">
 						<div class="col-lg-12">
-							<div class="panel panel-success">
+							<div class="panel panel-primary">
 								<div class="panel-heading">
 									<h3 class="panel-title">CUENTAS</h3>
 								</div>
@@ -166,7 +166,8 @@
 												<div class="col-sm-10">
 													<h:selectOneMenu id="inputClienteSel" styleClass="form-control"
 														value="#{adminView.clienteSel}">
-														<p:ajax event="change" update="dtUsuarios,form:editUsername, form:editPass"
+														<p:ajax event="change" update="dtUsuarios,form:editUsername, form:editPass, 
+															form:asociarSel, form:dtAsociados, form:btnActAs, form:btnDelAs, form:btnAgAs"
 															listener="#{adminView.cambioCliente}"  />
 														<f:selectItems value="#{adminView.clientes}" var="cliente"
 															itemLabel="#{cliente.nombre}" itemValue="#{cliente.id}" />
@@ -175,17 +176,21 @@
 											</div>
 										</div>
 										<p:dataTable id="dtUsuarios" paginator="true" rows="9"
+											paginatorTemplate="{PageLinks} {RowsPerPageDropdown}"
+                         					rowsPerPageTemplate="9,15,20"
 											paginatorPosition="bottom" value="#{adminView.usuarios}"
 											var="user" reflow="true" selectionMode="single" 
 											selection="#{adminView.usuarioSel}" rowKey="#{user.username}">
-											<p:ajax event="rowSelect" 
-												update="form:editUsername, form:editPass, form:editTipo, form:editEstado" />
+											<p:ajax event="rowSelect" listener="#{adminView.obtenerDependientes}"
+												update="form:editUsername, form:editPass, form:editTipo, 
+													form:editEstado, form:asociarSel, form:dtAsociados, 
+													form:btnActAs, form:btnDelAs, form:btnAgAs" />
 											<p:column headerText="Usuario" style="text-align:center;">
 												<h:outputText value="#{user.username}" />
 											</p:column>
 											<p:column headerText="Tipo" style="text-align:center;">
 												<h:outputText
-													value="#{user.idTipousuario==1?'Admin':user.idTipousuario==2?'Super':'User'}" />
+													value="#{user.idTipousuario==1?'Admin':user.idTipousuario==2?'Supervisor':user.idTipousuario==3?'Operador':'Master'}" />
 											</p:column>
 											<p:column headerText="Estado" style="text-align:center;">
 												<h:outputText value="#{user.enabled?'Activo':'Inactivo'}"
@@ -220,7 +225,7 @@
 				<div class="col-lg-3">
 					<div class="row">
 						<div class="col-lg-12">
-							<div class="panel panel-success">
+							<div class="panel panel-primary">
 								<div class="panel-heading">
 									<div class="panel-title"> USUARIO </div>
 								</div>
@@ -228,12 +233,7 @@
 								<p:fragment>
 									<p:panelGrid id="pnlUserEdit" styleClass="noBorder">
 										<div class="form">
-											<div class="form-group">
-												<p:commandLink action="#{adminView.eliminarUsuario}" styleClass="btn btn-sm btn-danger"
-														update="dtUsuarios, form:editUsername, form:editPass">
-													<i class="fa fa-trash"></i>
-												</p:commandLink>
-											</div>
+											
 											<div class="form-group">
 												<h:outputText value="Usuario" />
 												<p:inputText id="editUsername" value="#{adminView.usuarioSel.username}" 
@@ -259,14 +259,23 @@
 													<f:selectItem itemLabel="Inactivo" itemValue="false"/>
 												</h:selectOneMenu>
 											</div>
-											<div class="col-lg-10 col-lg-offset-1">
-												<div class="form-group" style="text-align:center;">
-													<p:commandButton value="ACTUALIZAR" action="#{adminView.actualizarUsuario}"
-														styleClass="btn btn-success form-control" 
-														update="dtUsuarios"/>
+										</div>
+										<div class="form form-inline">
+											<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
+												<div class="form-group">
+													<p:commandLink action="#{adminView.eliminarUsuario}" styleClass="btn btn-sm btn-danger"
+														update="dtUsuarios, form:editUsername, form:editPass">
+														<i class="fa fa-trash"></i>
+													</p:commandLink>
 												</div>
 											</div>
-											
+											<div class="col-lg-9 col-md-9 col-sm-12 col-xs-12">
+											<div class="form-group" style="text-align:center;">
+												<p:commandButton value="ACTUALIZAR" action="#{adminView.actualizarUsuario}"
+													styleClass="btn btn-success btn-block form-control" 
+													update="dtUsuarios"/>
+											</div>
+											</div>
 										</div>
 									</p:panelGrid>
 									</p:fragment>
@@ -274,7 +283,88 @@
 							</div>
 						</div>
 					</div>
-				</div>
+					
+					<!-- FILA 2 COLUMNA 3 -->
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-primary">
+								<div class="panel-heading">
+									<div class="panel-title"> ASOCIAR </div>
+								</div>
+								<div class="panel-body">
+								<p:fragment  autoUpdate="true">
+										<p:panelGrid id="pnlAsociar" styleClass="noBorder">
+											<div class="form">
+												<div class="form-group">
+													<h:outputText value="Asociar con" />
+													<h:selectOneMenu id="asociarSel" styleClass="form-control"
+														value="#{adminView.nuevoAsociado}" disabled="#{adminView.disableAsociado}">
+														<f:selectItems value="#{adminView.posiblesAsociados}"
+															var="tipo" itemLabel="#{tipo}"
+															itemValue="#{tipo}" />
+													</h:selectOneMenu>
+												</div>
+												<div class="col-lg-10 col-lg-offset-1">
+													<div class="form-group" style="text-align: center;">
+														<p:commandButton id="btnAgAs" value="AGREGAR" update="form:dtAsociados"
+															action="#{adminView.agregarAsociado}" disabled="#{adminView.disableAsociado}"
+															styleClass="btn btn-success form-control" />
+													</div>
+												</div>
+
+											</div>
+										</p:panelGrid>
+									</p:fragment>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+					<!-- FILA 3 COLUMNA 3 -->
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-primary">
+								<div class="panel-heading">
+									<div class="panel-title"> ASOCIADOS </div>
+								</div>
+								<div class="panel-body">
+								<p:fragment>
+									<p:panelGrid id="pnlAsociados" styleClass="cmStyle" columns="1">
+										<p:dataTable id="dtAsociados" paginator="true" rows="5"
+											paginatorTemplate="{PageLinks} {RowsPerPageDropdown}"
+                         					rowsPerPageTemplate="5,10,15"
+											paginatorPosition="bottom" value="#{adminView.listaAsociados}"
+											var="asociado" reflow="true" selectionMode="single" 
+											emptyMessage="No hay asociados"
+											selection="#{adminView.asociado}" rowKey="#{asociado}">
+											<p:ajax event="rowSelect" />
+											<p:column headerText="Asociado">
+												<h:outputText value="#{asociado}" />
+											</p:column>
+										</p:dataTable>
+									</p:panelGrid>
+									<div class="col-lg-4 col-sm-12"> <!-- col-lg-offset-1 -->
+										<div class="form-group text-left" >
+											<p:commandLink id="btnDelAs" action="#{adminView.eliminarAsociado}" styleClass="btn btn-sm btn-danger" 
+														update="form:dtAsociados" disabled="#{adminView.disableAsociado}">
+														<i class="fa fa-trash"></i>
+											</p:commandLink>
+										</div>
+									</div>
+									<div class="col-lg-8 col-sm-12">
+										<div class="form-group text-left">
+											<p:commandButton id="btnActAs" value="ACTUALIZAR" disabled="#{adminView.disableAsociado}"
+														styleClass="btn btn-success form-control" 
+														action="#{adminView.guardarListaAsociados}" />
+										</div>
+									</div>
+									</p:fragment>
+								</div>
+							</div>
+						</div>
+					</div>
+					
+				</div><!-- .FIN COLUMNA 3 -->
 
 			</div>
 			<!-- FIN DEL ROW PRINCIPAL -->
