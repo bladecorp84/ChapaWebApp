@@ -109,6 +109,12 @@
 												<p:column headerText="UNIDAD"> 
 													<p:outputLabel value="#{hist.placasEco}" />
 												</p:column>
+<!-- 												<p:column headerText="ESTADO" exportable="false">  -->
+<!-- 													<i class="#{hist.estado?'fa fa-check':'fa fa-times'}" style="color:#{hist.estado?'green':'red'}"></i> -->
+<!-- 												</p:column> -->
+												<p:column headerText="ESTADO" > 
+													<p:outputLabel value="#{hist.estado?'Correcto':'Fallido'}" style="color:#{hist.estado?'green':'red'}" />
+												</p:column>
 											</p:dataTable>
 										</div>
 									</p:panelGrid>
