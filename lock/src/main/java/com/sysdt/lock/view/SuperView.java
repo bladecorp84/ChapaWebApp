@@ -105,9 +105,9 @@ public class SuperView implements Serializable{
 			pdf.open();
 			pdf.setPageSize(PageSize.LETTER);
 			pdf.add(new Paragraph("REPORTE DEL "+nombreArchivo(), FontFactory.getFont(FontFactory.TIMES_BOLD,16,Color.DARK_GRAY)));
-			pdf.add(new Paragraph("TOTAL CODIGOS: "+registros, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.LIGHT_GRAY)));
-			pdf.add(new Paragraph("CORRECTOS: "+codigosExito, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.LIGHT_GRAY)));
-			pdf.add(new Paragraph("FALLIDOS: "+codigosError, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.LIGHT_GRAY)));
+			pdf.add(new Paragraph("TOTAL CODIGOS: "+registros, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.DARK_GRAY)));
+			pdf.add(new Paragraph("CORRECTOS: "+codigosExito, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.DARK_GRAY)));
+			pdf.add(new Paragraph("FALLIDOS: "+codigosError, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.DARK_GRAY)));
 			pdf.add(new Paragraph(" "));
 		}catch(Exception ex){
 			MensajeGrowl.mostrar("Error al generar el reporte", FacesMessage.SEVERITY_FATAL);

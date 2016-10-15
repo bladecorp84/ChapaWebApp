@@ -34,7 +34,7 @@
 		<property name="driverClass" value="com.mysql.jdbc.Driver" />
 		<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/base_chapa" />
 		<property name="user" value="root" />
-		<property name="password" value="5438" />
+		<property name="password" value="1234" />
 	</bean>
 
 </beans>
