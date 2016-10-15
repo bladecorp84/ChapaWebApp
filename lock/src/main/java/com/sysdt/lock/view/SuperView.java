@@ -1,22 +1,25 @@
 package com.sysdt.lock.view;
 
 import java.awt.Color;
+import java.io.File;
 import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
+import javax.faces.context.ExternalContext;
+import javax.faces.context.FacesContext;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.FontFactory;
+import com.lowagie.text.Image;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.sysdt.lock.dto.UsuarioDTO;
@@ -104,6 +107,19 @@ public class SuperView implements Serializable{
 			Document pdf = (Document)documento;
 			pdf.open();
 			pdf.setPageSize(PageSize.LETTER);
+			
+			ExternalContext externalContext = FacesContext.getCurrentInstance().getExternalContext();
+	        String logo = externalContext.getRealPath("") + File.separator + "resources" + File.separator + 
+	        		"imgs" + File.separator + usuarioDTO.getCliente().getLogo();
+	         
+			//Add Image
+		    Image image1 = Image.getInstance(logo);
+		    //Fixed Positioning
+		    image1.setAbsolutePosition(350f, 725f); //100 550 //150 650
+		    //Scale to new height and new width of image
+		    image1.scaleAbsolute(150, 75);
+		    //Add to document
+		    pdf.add(image1);
 			pdf.add(new Paragraph("REPORTE DEL "+nombreArchivo(), FontFactory.getFont(FontFactory.TIMES_BOLD,16,Color.DARK_GRAY)));
 			pdf.add(new Paragraph("TOTAL CODIGOS: "+registros, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.DARK_GRAY)));
 			pdf.add(new Paragraph("CORRECTOS: "+codigosExito, FontFactory.getFont(FontFactory.TIMES_BOLD,12,Color.DARK_GRAY)));
@@ -131,7 +147,7 @@ public class SuperView implements Serializable{
 		cal.setTime(fecha);
 		int day = cal.get(Calendar.DAY_OF_MONTH);
 		int month = cal.get(Calendar.MONTH)+1;
-		return (day<10?"0"+day:day)+" / "+ (month<10?"0"+month:month) +" / "+cal.get(Calendar.YEAR);
+		return (day<10?"0"+day:day)+"/"+ (month<10?"0"+month:month) +"/"+cal.get(Calendar.YEAR);
 	}
 	
 	public String convertirHora(Date fecha){
