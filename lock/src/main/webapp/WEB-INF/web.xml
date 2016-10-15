@@ -20,6 +20,21 @@
     <listener-class>org.springframework.web.context.request.RequestContextListener</listener-class>
   </listener>
   
+<!--   <security-constraint> -->
+<!--   	<web-resource-collection> -->
+<!--   		<web-resource-name>LockApp</web-resource-name> -->
+<!--   		<url-pattern>/*</url-pattern> -->
+<!--   	</web-resource-collection> -->
+  	
+<!--   	<user-data-constraint> -->
+<!--   		<transport-guarantee>CONFIDENTIAL</transport-guarantee> -->
+<!--   	</user-data-constraint> -->
+<!--   </security-constraint> -->
+  
+  
+  <session-config>
+  	<session-timeout>60</session-timeout>
+  </session-config>
   
   <welcome-file-list>
     <welcome-file>login.xhtml</welcome-file>
