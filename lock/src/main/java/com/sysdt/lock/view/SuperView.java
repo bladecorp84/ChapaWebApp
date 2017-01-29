@@ -3,6 +3,7 @@ package com.sysdt.lock.view;
 import java.awt.Color;
 import java.io.File;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -16,6 +17,12 @@ import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
+
+import org.primefaces.context.RequestContext;
+import org.primefaces.model.map.DefaultMapModel;
+import org.primefaces.model.map.LatLng;
+import org.primefaces.model.map.MapModel;
+import org.primefaces.model.map.Marker;
 
 import com.lowagie.text.Document;
 import com.lowagie.text.FontFactory;
@@ -50,11 +57,17 @@ public class SuperView implements Serializable{
 	
 	private Date fechaIni;
 	private Date fechaFin;
+	private int tipoBisqueda;
 	private int codigosExito;
 	private int codigosError;
 	private int registros;
 	private String titulo;
 	private String tituloReporte;
+	
+	private MapModel modeloMapa;
+	private Historico historicoSel;
+	private String latitud;
+	private String longitud;
 	
 	@PostConstruct
 	public void init(){
@@ -72,28 +85,36 @@ public class SuperView implements Serializable{
 			}else{
 				usuarios = usuarioService.obtenerOperadoresPorSupervisor(usuarioDTO.getUsername());
 			}
+			modeloMapa = new DefaultMapModel();
+			establecerMapaInicial();
 		}
 		
 	}
 	
 	public void buscarHistorico(){
-		if(usuario != null && usuario.getUsername() != null){
-			try{
-				historicos = historicoService.obtenerHistoricoPorUsuarioYFecha(usuario.getUsername(), fechaIni, fechaFin);
-				registros = historicos.size();
-				calcularRegistros();
-				String tituloContenido = nombreArchivo();
-				titulo = "PERIODO "+tituloContenido;
-				tituloReporte = "CODIGOS DEL "+tituloContenido+"_"+usuario.getUsername();
-				if(registros == 0){
-					MensajeGrowl.mostrar("No se encontraron registros en esa fecha", FacesMessage.SEVERITY_WARN);
-				}
-			}catch(Exception ex){
-				MensajeGrowl.mostrar("Ocurrió una excepción al recuperar el historial", FacesMessage.SEVERITY_FATAL);
-			}
-		}else{
+		if(usuario == null || usuario.getUsername() == null){
 			MensajeGrowl.mostrar("Primero debe seleccionar una cuenta de usuario", FacesMessage.SEVERITY_ERROR);
+			return;
 		}
+		if(fechaIni.after(fechaFin)){
+			MensajeGrowl.mostrar("La fecha final no puede ser anterior a la fecha inicial", FacesMessage.SEVERITY_ERROR);
+			return;
+		}
+	
+		try{
+			historicos = historicoService.obtenerHistoricoPorUsuarioFechaYTipo(usuario.getUsername(), fechaIni, fechaFin, tipoBisqueda);
+			registros = historicos.size();
+			calcularRegistros();
+			String tituloContenido = nombreArchivo();
+			titulo = "PERIODO "+tituloContenido+" ... TIPO: "+(tipoBisqueda==1?"CODIGOS":tipoBisqueda==2?"APERTURAS":"TODO");
+			tituloReporte = "CODIGOS DEL "+tituloContenido+"_"+usuario.getUsername();
+			if(registros == 0){
+				MensajeGrowl.mostrar("No se encontraron registros en esa fecha", FacesMessage.SEVERITY_WARN);
+			}
+		}catch(Exception ex){
+			MensajeGrowl.mostrar("Ocurrió una excepción al recuperar el historial", FacesMessage.SEVERITY_FATAL);
+		}
+		establecerMapaInicial();
 	}
 	
 	public void cambioUsuario(){
@@ -142,6 +163,13 @@ public class SuperView implements Serializable{
 		}
 	}
 	
+	public String unidadSeleccionada(){
+		String msj = "Unidad: "+historicoSel.getPlacasEco();
+		msj += " Fecha: "+convertirFecha(historicoSel.getFecha());
+		msj += " "+convertirHora(historicoSel.getFecha());
+		return msj;
+	}
+	
 	public String convertirFecha(Date fecha){
 		Calendar cal = Calendar.getInstance();
 		cal.setTime(fecha);
@@ -173,6 +201,41 @@ public class SuperView implements Serializable{
 		return periodo;
 	}
 
+	public void seleccionarFechaInicial(){
+		if(fechaIni.after(fechaFin)){
+			fechaFin = fechaIni;
+		}
+	}
+	
+	public void actualizarMapa(){
+		modeloMapa = new DefaultMapModel();
+		
+		if(historicoSel == null || historicoSel.getLatitud() == null || historicoSel.getLongitud() == null){
+			establecerMapaInicial();
+			return;
+		}
+		
+		try{
+			double lat = Double.parseDouble(historicoSel.getLatitud());
+			double lon = Double.parseDouble(historicoSel.getLongitud());
+			latitud = historicoSel.getLatitud();
+			longitud = historicoSel.getLongitud();
+			LatLng coordenada = new LatLng(lat, lon);
+			modeloMapa.addOverlay(new Marker(coordenada, "Unidad: "+historicoSel.getPlacasEco()));
+		}catch(Exception e){
+			establecerMapaInicial();
+			MensajeGrowl.mostrar("Ocurrió un error al obtener las coordenadas", FacesMessage.SEVERITY_FATAL);
+		}
+		RequestContext.getCurrentInstance().execute("PF('statusDialog').hide();");
+	}
+	
+	private void establecerMapaInicial(){
+		//poner coordenadas estandar
+		latitud = Constantes.Coordenadas.LATITUD_INICIAL;
+		longitud = Constantes.Coordenadas.LONGITUD_INICIAL;
+	}
+	
+	
 	public ManejoSesionView getManejoSesionView() {
 		return manejoSesionView;
 	}
@@ -267,6 +330,46 @@ public class SuperView implements Serializable{
 
 	public void setTituloReporte(String tituloReporte) {
 		this.tituloReporte = tituloReporte;
+	}
+
+	public int getTipoBisqueda() {
+		return tipoBisqueda;
+	}
+
+	public void setTipoBisqueda(int tipoBisqueda) {
+		this.tipoBisqueda = tipoBisqueda;
+	}
+
+	public MapModel getModeloMapa() {
+		return modeloMapa;
+	}
+
+	public void setModeloMapa(MapModel modeloMapa) {
+		this.modeloMapa = modeloMapa;
+	}
+
+	public String getLatitud() {
+		return latitud;
+	}
+
+	public void setLatitud(String latitud) {
+		this.latitud = latitud;
+	}
+
+	public String getLongitud() {
+		return longitud;
+	}
+
+	public void setLongitud(String longitud) {
+		this.longitud = longitud;
+	}
+
+	public Historico getHistoricoSel() {
+		return historicoSel;
+	}
+
+	public void setHistoricoSel(Historico historicoSel) {
+		this.historicoSel = historicoSel;
 	}
 
 }

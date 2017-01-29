@@ -8,12 +8,18 @@ import javax.annotation.PostConstruct;
 import javax.faces.application.FacesMessage;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
+import javax.faces.bean.RequestScoped;
 import javax.faces.bean.ViewScoped;
 import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.sysdt.lock.dto.UserDTO;
 import com.sysdt.lock.dto.UsuarioDTO;
 import com.sysdt.lock.service.ClienteService;
+import com.sysdt.lock.service.UsuarioService;
 import com.sysdt.lock.util.MensajeGrowl;
 
 @ManagedBean
@@ -22,8 +28,11 @@ public class ManejoSesionView implements Serializable{
 
 	private static final long serialVersionUID = 1L;
 	
-	@ManagedProperty("#{clienteService}")
-	private ClienteService clienteService;
+	@ManagedProperty("#{usuarioService}")
+	private UsuarioService usuarioService;
+	
+//	@ManagedProperty("#{userDTO}")
+//	private UserDTO userDTO;
 	
 	private UsuarioDTO usuarioDTO;
 	
@@ -31,6 +40,17 @@ public class ManejoSesionView implements Serializable{
 	@PostConstruct
 	public void init(){
 		obtenerUsuarioEnSesion();
+		
+		if(usuarioDTO == null || usuarioDTO.getIdCliente() == null){
+			ExternalContext ec = FacesContext.getCurrentInstance().getExternalContext();
+		//	ec.invalidateSession();
+			try {
+				ec.redirect("login.xhtml");
+				return;
+			} catch (IOException e) {
+				System.out.println("ERROR AL REDIRIGIR USERDTO");
+			}
+		}
 	}
 
 	public UsuarioDTO obtenerUsuarioEnSesion(){
@@ -41,7 +61,7 @@ public class ManejoSesionView implements Serializable{
 				Map<String, Object> session = ec.getSessionMap();
 				usuarioDTO = (UsuarioDTO)session.get("usuario");
 				if(usuarioDTO == null){
-			//		ec.invalidateSession();
+					ec.invalidateSession();
 					ec.redirect("login.xhtml");
 				}
 			} catch (IOException e) {
@@ -85,12 +105,12 @@ public class ManejoSesionView implements Serializable{
 		}
 	}
 
-	public ClienteService getClienteService() {
-		return clienteService;
+	public UsuarioService getUsuarioService() {
+		return usuarioService;
 	}
 
-	public void setClienteService(ClienteService clienteService) {
-		this.clienteService = clienteService;
+	public void setUsuarioService(UsuarioService usuarioService) {
+		this.usuarioService = usuarioService;
 	}
 
 	public UsuarioDTO getUsuarioDTO() {

@@ -2,11 +2,15 @@ package com.sysdt.lock.dto;
 
 import java.io.Serializable;
 
+import org.springframework.context.annotation.Scope;
+import org.springframework.context.annotation.ScopedProxyMode;
+import org.springframework.stereotype.Component;
+
 import com.sysdt.lock.model.Cliente;
 
-public class UsuarioDTO implements Serializable{
-
-	private static final long serialVersionUID = 1228694890109458290L;
+@Component
+@Scope(value = "session", proxyMode = ScopedProxyMode.TARGET_CLASS)
+public class UserDTO implements Serializable{
 
 	private String username;
 
@@ -56,8 +60,7 @@ public class UsuarioDTO implements Serializable{
 
 	public void setCliente(Cliente cliente) {
 		this.cliente = cliente;
-	}
+	}  
     
-    
-    
+	
 }

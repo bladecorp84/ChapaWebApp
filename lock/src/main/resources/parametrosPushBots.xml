@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<MensajesPushBots>
+	
+	<!-- NO MODIFICAR (Informacion confidencial de Pushbots) -->
+	<Mensaje>Solicitud de apertura remota</Mensaje>
+	<AppId>571931814a9efab3868b4567</AppId>
+	<AppSecret>75e01580abac8547e7ddbe8ad5f2dea1</AppSecret>
+	<!-- AppId Real:  571931814a9efab3868b4567 -->
+	<!-- AppSecret Real: 75e01580abac8547e7ddbe8ad5f2dea1 -->
+</MensajesPushBots>

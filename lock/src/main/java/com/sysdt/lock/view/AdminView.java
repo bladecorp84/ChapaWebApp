@@ -10,14 +10,20 @@ import javax.faces.bean.ManagedBean;
 import javax.faces.bean.ManagedProperty;
 import javax.faces.bean.ViewScoped;
 
+import org.primefaces.context.RequestContext;
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.sun.faces.util.MostlySingletonSet;
+import com.sysdt.lock.dto.UserDTO;
 import com.sysdt.lock.dto.UsuarioDTO;
 import com.sysdt.lock.model.Cliente;
 import com.sysdt.lock.model.TipoUsuario;
+import com.sysdt.lock.model.Unidad;
 import com.sysdt.lock.model.Usuario;
 import com.sysdt.lock.service.CatalogoService;
 import com.sysdt.lock.service.ClienteService;
 import com.sysdt.lock.service.DependenciaService;
+import com.sysdt.lock.service.UnidadService;
 import com.sysdt.lock.service.UsuarioService;
 import com.sysdt.lock.util.Constantes;
 import com.sysdt.lock.util.MensajeGrowl;
@@ -37,11 +43,19 @@ public class AdminView implements Serializable {
 	private CatalogoService catalogoService;
 	@ManagedProperty("#{dependenciaService}")
 	private DependenciaService dependenciaService;
+	@ManagedProperty("#{unidadService}")
+	private UnidadService unidadService;
+//	@ManagedProperty("#{userDTO}")
+//	private UserDTO userDTO;
 	
 	private List<Cliente> clientes;
 	private List<TipoUsuario> tiposUsuario;
 	private List<Usuario> usuarios;
 	private Cliente cliente;
+	private int idCliente;
+	private List<Unidad> unidades;
+	private int unidadSel;
+	private String eco;
 	private Usuario usuario;
 	private Usuario usuarioSel;
 	private int clienteSel;
@@ -69,6 +83,9 @@ public class AdminView implements Serializable {
 			disableAsociado = true;
 			posiblesAsociados = new ArrayList<String>();
 			listaAsociados = new ArrayList<String>();
+			unidades = new ArrayList<Unidad>();
+			idCliente = clientes.size() > 0 ? clientes.get(0).getId():0;
+			cargarUnidadesDelCliente();
 		}
 	}
 	
@@ -249,6 +266,118 @@ public class AdminView implements Serializable {
 		usuarioSel.setUsername("");
 		usuarioSel.setPassword("");
 	}
+	
+	public void guardarUnidad(){
+		if(idCliente == 0){
+			MensajeGrowl.mostrar("Debe seleccionar un cliente", FacesMessage.SEVERITY_WARN);
+			return;
+		}
+		if(eco == null || eco.trim().isEmpty()){
+			MensajeGrowl.mostrar("Debe escribir el número económico o las placas de la unidad", FacesMessage.SEVERITY_WARN);
+			return;
+		}
+		Unidad unidad = new Unidad();
+		unidad.setId(0);
+		unidad.setEco(eco);
+		unidad.setIdcliente(idCliente);
+		try{
+			boolean exito = unidadService.guardarNuevaUnidad(unidad);
+			if(exito){
+				cargarUnidadesDelCliente();
+				MensajeGrowl.mostrar("La unidad fue agregada exitosamente", FacesMessage.SEVERITY_INFO);
+			}else{
+				MensajeGrowl.mostrar("El cliente ya tiene registrada esa unidad", FacesMessage.SEVERITY_ERROR);
+			}
+		}catch(Exception e){
+			MensajeGrowl.mostrar("Ocurrió un error al guardar la unidad", FacesMessage.SEVERITY_FATAL);
+		}
+	}
+	
+	public void actualizarUnidad(){
+		if(idCliente == 0){
+			MensajeGrowl.mostrar("Debe seleccionar un cliente", FacesMessage.SEVERITY_WARN);
+			return;
+		}
+		if(unidadSel == 0){
+			MensajeGrowl.mostrar("Debe seleccionar una unidad", FacesMessage.SEVERITY_WARN);
+			return;
+		}
+		if(unidadSel == Constantes.LISTA_UNIDADES_VACIA){
+			MensajeGrowl.mostrar("No hay unidades vinculadas a la cuenta", FacesMessage.SEVERITY_WARN);
+			return;
+		}
+		if(eco == null || eco.trim().isEmpty()){
+			MensajeGrowl.mostrar("Debe escribir el nuevo número económico o las placas de la unidad", FacesMessage.SEVERITY_WARN);
+			return;
+		}
+		
+		try{
+			Unidad unidad = new Unidad();
+			unidad.setId(unidadSel);
+			unidad.setEco(eco.trim());
+			unidad.setIdcliente(idCliente);
+			boolean exito = unidadService.ecoDuplicado(unidad);
+			if(exito){
+				MensajeGrowl.mostrar("El cliente ya tiene registrada esa unidad", FacesMessage.SEVERITY_ERROR);
+				return;
+			}
+			exito = unidadService.actualizarUnidad(unidad);
+			if(exito){
+				cargarUnidadesDelCliente();
+				MensajeGrowl.mostrar("La unidad fue actualizada exitosamente", FacesMessage.SEVERITY_INFO);
+			}else{
+				MensajeGrowl.mostrar("No se pudo actualizar porque no se encontró el registro de la unidad", FacesMessage.SEVERITY_ERROR);
+			}
+			
+		}catch(Exception e){
+			MensajeGrowl.mostrar("Ocurrió un error al guardar la unidad", FacesMessage.SEVERITY_FATAL);
+		}
+		
+	}
+	
+	public void eliminarUnidad(){
+		if(unidadSel == 0){
+			MensajeGrowl.mostrar("Debe seleccionar una unidad", FacesMessage.SEVERITY_WARN);
+			return;
+		}
+		if(unidadSel == Constantes.LISTA_UNIDADES_VACIA){
+			MensajeGrowl.mostrar("No hay unidades vinculadas a la cuenta", FacesMessage.SEVERITY_WARN);
+			return;
+		}
+		try{
+			boolean exito = unidadService.eliminarUnidad(unidadSel);
+			if(exito){
+				cargarUnidadesDelCliente();
+				MensajeGrowl.mostrar("La unidad fue eliminada exitosamente", FacesMessage.SEVERITY_INFO);
+			}else{
+				MensajeGrowl.mostrar("No se pudo eliminar porque no se encontró el registro de la unidad", FacesMessage.SEVERITY_FATAL);
+			}
+		}catch(Exception e){
+			MensajeGrowl.mostrar("Ocurrió un error al eliminar la unidad", FacesMessage.SEVERITY_FATAL);
+		}
+	}
+	
+	public void cargarUnidadesDelCliente(){
+		unidades.clear();
+		eco = "";
+		if(idCliente != 0){
+			unidades = unidadService.obtenerUnidadesPorIdCliente(idCliente);
+			if(unidades.isEmpty()){
+				unidades.add(generarUnidadVacia());
+			}
+		}
+	}
+	
+	private Unidad generarUnidadVacia(){
+		Unidad unidad = new Unidad();
+		unidad.setId(Constantes.LISTA_UNIDADES_VACIA);
+		unidad.setEco("No hay unidades disponibles");
+		return unidad;
+	}
+	
+	private void ocultarLoading(){
+		RequestContext.getCurrentInstance().execute("PF('statusDialog').hide();");
+	}
 
 	public ManejoSesionView getManejoSesionView() {
 		return manejoSesionView;
@@ -384,6 +513,46 @@ public class AdminView implements Serializable {
 
 	public void setDisableAsociado(boolean disableAsociado) {
 		this.disableAsociado = disableAsociado;
+	}
+
+	public UnidadService getUnidadService() {
+		return unidadService;
+	}
+
+	public void setUnidadService(UnidadService unidadService) {
+		this.unidadService = unidadService;
+	}
+
+	public List<Unidad> getUnidades() {
+		return unidades;
+	}
+
+	public void setUnidades(List<Unidad> unidades) {
+		this.unidades = unidades;
+	}
+
+	public int getIdCliente() {
+		return idCliente;
+	}
+
+	public void setIdCliente(int idCliente) {
+		this.idCliente = idCliente;
+	}
+
+	public int getUnidadSel() {
+		return unidadSel;
+	}
+
+	public void setUnidadSel(int unidadSel) {
+		this.unidadSel = unidadSel;
+	}
+
+	public String getEco() {
+		return eco;
+	}
+
+	public void setEco(String eco) {
+		this.eco = eco;
 	}
 	
 

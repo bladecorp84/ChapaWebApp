@@ -18,13 +18,15 @@
 	<link rel="shortcut icon"
 		href="resources/imgs/#{manejoSesionView.usuarioDTO.cliente.logo}"
 		type="image/x-png" />
+	<link href="resources/css/estilos.css" type="text/css" rel="stylesheet"/>
 
 	<!-- 	<h:outputScript library="js" value="calendar_es.js"></h:outputScript> -->
 	<script type="text/javascript" src="resources/js/calendar_es.js"></script>
 	<script type="text/javascript" src="resources/js/bootstrap.min.js"></script>
+	<script src="http://maps.google.com/maps/api/js?key=AIzaSyDg8fMqj67nLiW_ZZcd_RTp_bzS-w0rHx0" type="text/javascript"></script>
 	<title><ui:insert name="title">Lock #{manejoSesionView.usuarioDTO.cliente.nombre}</ui:insert></title>
 </h:head>
-<h:body>
+<h:body styleClass="general">
 
 	<div class="container" style="margin:0 auto; width:100%;">
 
@@ -46,7 +48,7 @@
 									class="icon-bar"></span>
 							</button>
 							<a class="navbar-brand" href="#">
-								<h:outputText value="#{manejoSesionView.usuarioDTO.cliente.nombre}" />
+								<h:outputText value="#{manejoSesionView.usuarioDTO.cliente.nombre}" style="font-weight:bold;"/>
 							</a>
 						</div>
 
@@ -74,11 +76,10 @@
 									</li>
 								</c:if>
 								<li >
-									<p:commandLink styleClass="btn btn-danger"
+									<p:commandLink styleClass="btn btn-danger" style="color:white;"
 										value="Cerrar Sesión"
 										action="#{manejoSesionView.cerrarSesionUsuario}" />
 								</li>
-								
 							</ul>
 						</div>
 <!-- 					</div> -->
@@ -90,7 +91,10 @@
 			NO CONTENT
 		</ui:insert>
 		<ui:insert name="footer">
-
+			<p:dialog id="statusDialog" widgetVar="statusDialog" modal="false" draggable="false" 
+						closable="false" resizable="false" showHeader="false" styleClass="customDialog">
+				<p:graphicImage value="resources/imgs/gps.svg" height="250" width="250" />
+			</p:dialog>
 		</ui:insert>
 		<ui:insert name="scripts">
 			<script>

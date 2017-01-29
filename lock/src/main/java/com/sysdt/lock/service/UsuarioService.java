@@ -3,17 +3,20 @@ package com.sysdt.lock.service;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.sysdt.lock.dao.UsuarioMapper;
+import com.sysdt.lock.dto.UserDTO;
 import com.sysdt.lock.dto.UsuarioDTO;
 import com.sysdt.lock.model.Cliente;
 import com.sysdt.lock.model.Usuario;
 import com.sysdt.lock.model.UsuarioExample;
 import com.sysdt.lock.model.UsuarioExample.Criteria;
 import com.sysdt.lock.util.Constantes;
+import com.sysdt.lock.util.Security;
 
 @Service
 @Transactional
@@ -95,10 +98,11 @@ public class UsuarioService {
 		return dependientes;
 	}
 	
-	public String generarCodigo(String clave1, String clave2, String username, String placasEco)throws Exception {
+	public String generarCodigo(String clave1, String clave2, String username, String placasEco, int idCliente)throws Exception {
 		String codigo = "";
 		try {
-			codigo = convertirLlaves(clave1, clave2);
+			Security security = new Security();
+			codigo = security.convertirLlaves(clave1, clave2, idCliente);
 			if(codigo != null){
 				historicoService.insertarHistorico(username, placasEco, true);
 			}else{
@@ -152,11 +156,6 @@ public class UsuarioService {
 	private void usuarioTrim(Usuario usuario){
 		usuario.setUsername(usuario.getUsername().trim().toLowerCase());
 		usuario.setPassword(usuario.getPassword().trim().toLowerCase());
-	}
-	
-	private String convertirLlaves(String clave1, String clave2) throws Exception{
-//		return "BBBCCC";
-		return null;
 	}
 	
 }

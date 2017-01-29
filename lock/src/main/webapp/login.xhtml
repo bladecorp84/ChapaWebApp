@@ -15,7 +15,7 @@
 		href="resources/vendors/fontawesome/css/font-awesome.min.css" />
 	<!-- 	<h:outputStylesheet library="css" name="font-awesome.min.css" /> -->
 	<h:outputScript library="js" name="bootstrap.min.js" />
-	<link href="resources/css/estilos.css" type="text/css" rel="stylesheet" />
+	<link href="resources/css/estilos.css" type="text/css" rel="stylesheet"/>
 	
 	<f:metadata>
     	<f:viewParam name="c" value="#{loginView.nombreCliente}" />
@@ -25,7 +25,16 @@
 	<link rel="shortcut icon" href="resources/imgs/#{loginView.cliente.logo}" type="image/x-png" />
 	<title>Lock #{loginView.cliente.nombre}</title>
 </h:head>
-<h:body>
+<h:body styleClass="general">
+	<style>
+		.customDialog {
+			background:transparent !important;
+			background-color:transparent !important;
+    		box-shadow: none !important;
+    		border: none !important;
+		}
+	</style>
+
 	<div class="container" style="margin:0 auto; width:100%;">
 		<div class="navbar navbar-default">
 			<div class="navbar-brand"> <h:outputText value="#{loginView.cliente.nombre}" style="text-transform:capitalize;"  /> </div>
@@ -78,7 +87,7 @@
 								<div class="form-group" style="margin-top: 35px;">
 									<p:outputLabel styleClass="control-label col-sm-3" />
 									<div class=" col-sm-7">
-										<p:commandButton value="INGRESAR"
+										<p:commandButton value="INGRESAR" onclick="PF('statusDialog').show();"
 											styleClass="btn btn-primary form-control"
 											action="#{loginView.ingresar}" />
 									</div>
@@ -91,7 +100,10 @@
 			</div>
 		</h:form>
 	</div>
-
+	<p:dialog id="statusDialog" widgetVar="statusDialog" modal="false" draggable="false" 
+						closable="false" resizable="false" showHeader="false" styleClass="customDialog">
+		<p:graphicImage value="resources/imgs/gps.svg" height="250" width="250" />
+	</p:dialog>
 
 
 </h:body>

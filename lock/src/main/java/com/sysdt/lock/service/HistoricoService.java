@@ -11,6 +11,8 @@ import org.springframework.transaction.annotation.Transactional;
 import com.sysdt.lock.dao.HistoricoMapper;
 import com.sysdt.lock.model.Historico;
 import com.sysdt.lock.model.HistoricoExample;
+import com.sysdt.lock.model.HistoricoExample.Criteria;
+import com.sysdt.lock.util.Constantes;
 
 @Service
 @Transactional
@@ -22,10 +24,16 @@ public class HistoricoService {
 	@Autowired
 	private HistoricoMapper historicoMapper;
 	
-	public List<Historico> obtenerHistoricoPorUsuarioYFecha(String username, Date fechaIni, Date fechaFin) throws Exception{
+	public List<Historico> obtenerHistoricoPorUsuarioFechaYTipo(String username, Date fechaIni, Date fechaFin, int tipo) throws Exception{
 		HistoricoExample exHist = new HistoricoExample();
-		exHist.createCriteria().andUsernameEqualTo(username)
-			.andFechaBetween(generarFecha(fechaIni, FECHA_INICIO), generarFecha(fechaFin, FECHA_FIN));
+		Criteria criteria = exHist.createCriteria();
+		criteria.andUsernameEqualTo(username);
+		criteria.andFechaBetween(generarFecha(fechaIni, FECHA_INICIO), generarFecha(fechaFin, FECHA_FIN));
+		if(tipo == Constantes.TipoEvento.GENERACION_CODIGO){
+			criteria.andLatitudIsNull().andLongitudIsNull();
+		}else if(tipo == Constantes.TipoEvento.APERTURA_CHAPA){
+			criteria.andLatitudIsNotNull().andLongitudIsNotNull();
+		}
 		return historicoMapper.selectByExample(exHist);
 	}
 	
@@ -35,6 +43,10 @@ public class HistoricoService {
 		historico.setUsername(username);
 		historico.setPlacasEco(placasEco.toUpperCase());
 		historico.setEstado(estado);
+		historicoMapper.insert(historico);
+	}
+	
+	public void insertarHistoricoConCoordenadas(Historico historico)throws Exception{
 		historicoMapper.insert(historico);
 	}
 	

@@ -1,9 +1,9 @@
 .general{
 	margin:0;
 	padding:0;
-background: #2c3e50; /* fallback for old browsers */
-background: -webkit-linear-gradient(to left, #2c3e50 , #3498db); /* Chrome 10-25, Safari 5.1-6 */
-background: linear-gradient(to left, #2c3e50 , #3498db); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+background: #c0c1c1; /* fallback for old browsers */
+background: -webkit-linear-gradient(to left, #c0c1c1 , #f1f1f1); /* Chrome 10-25, Safari 5.1-6 */
+background: linear-gradient(to left, #c0c1c1, #f1f1f1); /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
                            
 }
 
@@ -168,4 +168,11 @@ background: linear-gradient(to left, #2c3e50 , #3498db); /* W3C, IE 10+/ Edge, F
     width : auto;
     word-spacing : normal;
     z-index : auto;
+}
+
+.customDialog {
+	background:transparent !important;
+	background-color:transparent !important;
+    box-shadow: none !important;
+    border: none !important;
 }

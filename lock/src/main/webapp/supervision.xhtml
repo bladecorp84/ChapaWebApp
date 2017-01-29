@@ -15,7 +15,7 @@
 
 				<!--  FILA 1 COLUMNA 1 -->
 
-				<div class="col-lg-5">
+				<div class="col-lg-4">
 					<div class="row">
 						<div class="col-lg-12">
 							<div class="panel panel-primary">
@@ -24,29 +24,45 @@
 								</div>
 								<div class="panel-body">
 									<div class="row" >
-									<p:panelGrid columns="1" styleClass="cmStyle">
-										<div class="col-lg-12">
-									
-											<p:dataTable id="dtUsers" paginator="true" paginatorPosition="bottom"
-											reflow="true" value="#{superView.usuarios}" var="user" rows="10"
-											selectionMode="single" selection="#{superView.usuario}" rowKey="#{user.username}">
-											<p:ajax event="rowSelect" update="form:dtHistorico, form:linkReporte" listener="#{superView.cambioUsuario}" />
-												<p:column headerText="USUARIO">#{user.username}</p:column>
-												<p:column headerText="TIPO" width="120">
-													<h:outputText value="#{user.idTipousuario==1?
-															'Admin':user.idTipousuario==2?'Supervisor':user.idTipousuario==3?'Operador':'Master'}" /> 
-												</p:column>
-											</p:dataTable>
-										</div>
+										<p:panelGrid columns="1" styleClass="cmStyle">
+											<div class="col-lg-12">
+										
+												<p:dataTable id="dtUsers" paginator="true" paginatorPosition="bottom"
+												reflow="true" value="#{superView.usuarios}" var="user" rows="4"
+												selectionMode="single" selection="#{superView.usuario}" rowKey="#{user.username}">
+												<p:ajax event="rowSelect" update="form:dtHistorico, form:linkReporte" listener="#{superView.cambioUsuario}" 
+													onstart="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
+													<p:column headerText="USUARIO">#{user.username}</p:column>
+													<p:column headerText="TIPO" width="120">
+														<h:outputText value="#{user.idTipousuario==1?
+																'Admin':user.idTipousuario==2?'Supervisor':user.idTipousuario==3?'Operador':'Master'}" /> 
+													</p:column>
+												</p:dataTable>
+											</div>
+										</p:panelGrid>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-12">
+							<div class="panel panel-primary">
+								<div class="panel-heading">
+									<div class="panel-title">MAPA</div>
+								</div>
+								<div class="panel-body">
+									<p:panelGrid id="pnlMapa" columns="1" styleClass="cmStyle" style="width:100%;">
+										<p:outputLabel rendered="#{superView.historicoSel.latitud != null}" value="#{superView.unidadSeleccionada()}" />
+										<p:gmap center="#{superView.latitud},#{superView.longitud}" zoom="13" type="HYBRID" style="width:100%;height:400px" model="#{superView.modeloMapa}"/>
 									</p:panelGrid>
 								</div>
 							</div>
 						</div>
 					</div>
 				</div>
-				</div>
 
-				<div class="col-lg-7">
+				<div class="col-lg-8">
 					<div class="row">
 						<div class="col-lg-12">
 							<div class="panel panel-primary">
@@ -58,30 +74,39 @@
 									<div class="row">
 									<p:panelGrid id="pnlHistorico" styleClass="noBorder">
 										<div class="form form-inline">
-										<div class="form-group">
+										<div class="form-group col-md-3 col-sm-12 col-xs-12">
+											<label for="tipoBusqueda" style="margin-left: 5px;margin-right: 5px;"> Tipo </label>
+											<h:selectOneMenu id="tipoBusqueda" value="#{superView.tipoBisqueda}" styleClass="form-control">
+												<f:selectItem itemLabel="TODO" itemValue="0"/>
+												<f:selectItem itemLabel="CODIGOS" itemValue="1"/>
+												<f:selectItem itemLabel="APERTURAS" itemValue="2" />
+											</h:selectOneMenu>
+										</div>
+										<div class="form-group  col-md-3 col-sm-12 col-xs-12">
 											<label for="calIni" style="margin-left: 5px;margin-right: 5px;"> Inicio </label>
-											<p:calendar id="calIni" value="#{superView.fechaIni}" size="9" pattern="dd/MM/yy"
-												placeholder="Inicio" locale="es" readonlyInput="true" showOn="button">
-												<p:ajax event="dateSelect" update="calFin"/>
+											<p:calendar id="calIni" value="#{superView.fechaIni}" size="4" pattern="dd/MM/yy"
+												placeholder="Inicio" locale="es" readonlyInput="true">
+												<p:ajax event="dateSelect" update="form:calFin" listener="#{superView.seleccionarFechaInicial}"/>
 											</p:calendar>
 <!-- 											<input type="text" placeholder="INICIO" class="form-control" /> -->
 										</div>
-										<div class="form-group">
+										<div class="form-group  col-md-2 col-sm-12 col-xs-12">
 											<label for="calFin" style="margin-left: 5px;margin-right: 5px;"> Fin </label>
-											<p:calendar id="calFin" value="#{superView.fechaFin}" size="9" readonlyInput="true" pattern="dd/MM/yy"
-												placeholder="Fin" locale="es" mindate="#{superView.fechaIni}" showOn="button"/>
+											<p:calendar id="calFin" value="#{superView.fechaFin}" size="4" readonlyInput="true" pattern="dd/MM/yy"
+												placeholder="Fin" locale="es" mindate="#{superView.fechaIni}"/>
 <!-- 											<input type="text" placeholder="FIN" class="form-control" /> -->
 										</div>
-										<div class="form-group col-md-2 col-sm-12 col-xs-12">
-											<p:commandButton value="Buscar" styleClass="btn btn-success form-control" 
-												action="#{superView.buscarHistorico}" update="form:dtHistorico"/>
+										<div class="form-group col-md-3 col-sm-12 col-xs-12">
+											<p:commandButton value="Buscar" styleClass="btn btn-success form-control" style="width:100%;"
+												action="#{superView.buscarHistorico}" update="form:dtHistorico, form:pnlMapa" 
+												onstart="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 										</div>
-										<div class="form-group col-md-2 col-sm-12 col-xs-12">
+										<div class="form-group col-md-1 col-sm-12 col-xs-12">
 											<p:commandLink id="linkReporte" styleClass="btn btn-warning form-control" ajax="false"
-														disabled="#{superView.usuario == null || superView.usuario.username == null}">
+												disabled="#{superView.usuario == null || superView.usuario.username == null}" >
 												<i class="fa fa-bar-chart"></i>
 												<p:dataExporter type="pdf" target="form:dtHistorico" fileName="#{superView.tituloReporte}"
-														preProcessor="#{superView.procesarPDF}"/>
+														preProcessor="#{superView.procesarPDF}" />
 											</p:commandLink>
 										</div>
 										</div> <!--  .FIN FORM -->
@@ -95,8 +120,12 @@
 										<div class="col-lg-12">
 											<p:dataTable id="dtHistorico" widgetVar="dtHistorico" paginator="true" paginatorPosition="bottom" rows="10"
 													reflow="true" value="#{superView.historicos}" var="hist" 
+													selectionMode="single" rowKey="#{hist.id}" selection="#{superView.historicoSel}"
 													style="text-align:center;" emptyMessage="No hay registros">
  												<f:facet name="header"> #{superView.titulo}</f:facet>
+ 												<p:ajax event="rowSelect" listener="#{superView.actualizarMapa}" update="form:pnlMapa" 
+ 														onstart="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
+ 												
 												<p:column headerText="USUARIO"> 
 													<p:outputLabel value="#{hist.username}" /> 
 												</p:column>
@@ -109,11 +138,16 @@
 												<p:column headerText="UNIDAD"> 
 													<p:outputLabel value="#{hist.placasEco}" />
 												</p:column>
-<!-- 												<p:column headerText="ESTADO" exportable="false">  -->
-<!-- 													<i class="#{hist.estado?'fa fa-check':'fa fa-times'}" style="color:#{hist.estado?'green':'red'}"></i> -->
-<!-- 												</p:column> -->
+												<p:column headerText="MAPA" exportable="false" rendered="#{superView.tipoBisqueda != 1}"> 
+													<p:commandLink id="ajax" rendered="#{hist.latitud != null}" style="cursor:default;">
+												        <i class="fa fa-map-marker" style="color:magenta"></i>
+												    </p:commandLink>
+												</p:column>
 												<p:column headerText="ESTADO" > 
 													<p:outputLabel value="#{hist.estado?'Correcto':'Fallido'}" style="color:#{hist.estado?'green':'red'}" />
+												</p:column>
+												<p:column headerText="TIPO" rendered="#{superView.tipoBisqueda == 0}"> 
+													<p:outputLabel value="#{hist.latitud != null?'Apertura':'Codigo'}"  />
 												</p:column>
 											</p:dataTable>
 										</div>

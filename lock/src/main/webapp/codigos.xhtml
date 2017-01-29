@@ -52,20 +52,27 @@
 									<h:outputLabel value="Unidad"
 										styleClass="control-label col-sm-3" />
 									<div class="col-sm-7">
-										<div class="input-group">
-											<p:inputText styleClass="form-control"
-												style="text-align:center;" value="#{userView.placasEco}" />
-											<span class="input-group-addon"><i class="fa fa-truck"></i>
-											</span>
+										<div class="input-group" style="width:100%;">
+											<h:selectOneMenu value="#{userView.idUnidad}" styleClass="form-control" style="width:100%;">
+												<f:selectItems value="#{userView.unidades}" var="u" itemValue="#{u.id}" itemLabel="#{u.eco}" />
+											</h:selectOneMenu>
+											<span class="input-group-addon"><i class="fa fa-truck"></i></span> 
 										</div>
 									</div>
 								</div>
 								<div class="form-group" style="margin-top: 35px;">
-									<p:outputLabel styleClass="control-label col-sm-3" />
-									<div class=" col-sm-7">
-										<p:commandButton value="GENERAR" update="dlg"
+<!-- 									<p:outputLabel styleClass="control-label col-sm-2" /> -->
+									<div class="col-md-6 col-sm-6 col-xs-6">
+										<p:commandButton value="ABRIR CHAPA" update="dlg"
+											styleClass="btn btn-warning form-control"
+											action="#{userView.abrirChapa}" 
+											onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
+									</div>
+									<div class="col-md-6 col-sm-6 col-xs-6">
+										<p:commandButton value="GENERAR CÓDIGO" update="dlg"
 											styleClass="btn btn-primary form-control"
-											action="#{userView.generarCodigo}" />
+											action="#{userView.generarCodigo}" 
+											onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 									</div>
 								</div>
 

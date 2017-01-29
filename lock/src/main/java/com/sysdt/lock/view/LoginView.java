@@ -12,7 +12,10 @@ import javax.faces.context.ExternalContext;
 import javax.faces.context.FacesContext;
 
 import org.primefaces.context.RequestContext;
+import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import com.sysdt.lock.dto.UserDTO;
 import com.sysdt.lock.dto.UsuarioDTO;
 import com.sysdt.lock.model.Cliente;
 import com.sysdt.lock.service.ClienteService;
@@ -40,7 +43,7 @@ public class LoginView implements Serializable{
 	
 	@PostConstruct
 	public void init(){ 
-		
+	//	userDTO = new UserDTO();
 	}
 	
 	public void ingresar(){
@@ -52,9 +55,11 @@ public class LoginView implements Serializable{
 			} catch (Exception e) {
 				RequestContext.getCurrentInstance().addCallbackParam("mensaje", e.getMessage());
 				MensajeGrowl.mostrar(e.getMessage(), FacesMessage.SEVERITY_ERROR);
+				RequestContext.getCurrentInstance().execute("PF('statusDialog').hide();");
 			}
 		}else{
 			MensajeGrowl.mostrar("Debe escribir usuario y password", FacesMessage.SEVERITY_ERROR);
+			RequestContext.getCurrentInstance().execute("PF('statusDialog').hide();");
 		}
 	}
 	

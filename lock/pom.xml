@@ -32,6 +32,8 @@
 		<mybatis.generator.version>1.3.0</mybatis.generator.version>
 		<lowagie.version>2.1.7</lowagie.version>
 		<apache.poi>3.13</apache.poi>
+		<apache-cxf.version>3.0.3</apache-cxf.version>
+		<apache-http.version>4.5</apache-http.version>
 	</properties>
 
 	<dependencies>
@@ -163,6 +165,24 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 			<version>${spring.version}</version>
+		</dependency>
+		
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-frontend-jaxws</artifactId>
+			<version>${apache-cxf.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.cxf</groupId>
+			<artifactId>cxf-rt-transports-http</artifactId>
+			<version>${apache-cxf.version}</version>
+		</dependency>
+		
+		<!-- Dependencia http -->
+		<dependency>
+			<groupId>org.apache.httpcomponents</groupId>
+			<artifactId>httpclient</artifactId>
+			<version>${apache-http.version}</version>
 		</dependency>
 
 	</dependencies>

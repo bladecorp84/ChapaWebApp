@@ -80,7 +80,8 @@
 												<p:commandButton value="AGREGAR"
 													styleClass="btn btn-primary form-control"
 													action="#{adminView.guardarUsuario}" 
-													update="dtUsuarios, inputUsername, inputPassword" />
+													update="dtUsuarios, inputUsername, inputPassword" 
+													onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 											</div>
 										</div>
 
@@ -129,14 +130,27 @@
 												</div>
 											</div>
 										</div>
+										<div class="form-group">
+											<h:outputLabel value="Wialon"
+												styleClass="control-label col-sm-3" />
+											<div class="col-sm-9">
+												<div class="input-group" style="width:100%;">
+													<h:selectOneMenu value="#{adminView.cliente.iswialon}" styleClass="form-control" >
+														<f:selectItem itemLabel="TIENE WIALON" itemValue="true" />
+														<f:selectItem itemLabel="NO TIENE WIALON" itemValue="false" />
+													</h:selectOneMenu>
+												</div>
+											</div>
+										</div>
 										<div class="form-group" style="margin-top: 35px;">
 											<p:outputLabel styleClass="control-label col-sm-3" />
 											<div class=" col-sm-7">
 												<p:commandButton value="AGREGAR"
 													update="inputCliente, inputClienteNombre, inputClienteImagen, 
-															inputClienteSel"
+															inputClienteSel, slctClienteUnidad"
 													styleClass="btn btn-primary form-control"
-													action="#{adminView.guardarCliente}" />
+													action="#{adminView.guardarCliente}" 
+													onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 											</div>
 										</div>
 									</div>
@@ -146,6 +160,88 @@
 						</div>
 						</div>
 					</div>
+					
+					<!-- FILA 3 COLUMNA 1 -->
+					<div class="row">
+					<div class="col-lg-12">
+						<div class="panel panel-primary">
+							<div class="panel-heading">
+								<h3 class="panel-title">AGREGAR UNIDAD</h3>
+							</div>
+							<div class="panel-body">
+							<p:fragment>
+								<p:panelGrid id="pnlAgregarUnidad">
+									<div class="form-horizontal">
+										<div class="form-group">
+											<h:outputLabel value="Cliente"
+												styleClass="control-label col-sm-3" />
+											<div class="col-sm-9">
+												<div class="input-group" style="width:100%;">
+													<h:selectOneMenu id="slctClienteUnidad" styleClass="form-control" value="#{adminView.idCliente}" >
+														<f:selectItems value="#{adminView.clientes}" var="c" itemLabel="#{c.nombre}" itemValue="#{c.id}" />
+														<p:ajax event="change" listener="#{adminView.cargarUnidadesDelCliente()}" update="slctUnidades inputUnidad"  />
+													</h:selectOneMenu>
+													<span class="input-group-addon"><i class="fa fa-building"></i>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="Unidades"
+												styleClass="control-label col-sm-3" />
+											<div class="col-sm-9">
+												<div class="input-group" style="width:100%;">
+													<h:selectOneMenu id="slctUnidades" styleClass="form-control" value="#{adminView.unidadSel}">
+														<p:ajax event="change" update="inputUnidad"/>
+														<f:selectItems value="#{adminView.unidades}" var="unit" itemLabel="#{unit.eco}" itemValue="#{unit.id}" />
+													</h:selectOneMenu>
+													<span class="input-group-addon"><i class="fa fa-truck"></i>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<h:outputLabel value="ECO"
+												styleClass="control-label col-sm-3" />
+											<div class="col-sm-9">
+												<div class="input-group" style="width:100%;">
+													<p:inputText id="inputUnidad"
+														styleClass="form-control" style="text-align:center;"
+														value="#{adminView.eco}" />
+													<span class="input-group-addon"><i class="fa fa-truck"></i>
+													</span>
+												</div>
+											</div>
+										</div>
+										<div class="form-group" style="margin-top: 35px;">
+											<div class="col-md-2 col-sm-2 col-xs-2">
+												<p:commandButton update="inputUnidad, slctUnidades" action="#{adminView.eliminarUnidad}"
+													styleClass="btn btn-danger form-control" icon="fa fa-trash" 
+													onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
+											</div>
+											<div class="col-md-5 col-sm-5 col-xs-5">
+												<p:commandButton value="ACTUALIZAR"
+													update="inputUnidad, slctUnidades"
+													styleClass="btn btn-primary form-control"
+													action="#{adminView.actualizarUnidad}" 
+													onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
+											</div>
+											<div class="col-md-5 col-sm-5 col-xs-5">
+												<p:commandButton value="NUEVO"
+													update="inputUnidad, slctUnidades"
+													styleClass="btn btn-success form-control"
+													action="#{adminView.guardarUnidad}" 
+													onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
+											</div>
+										</div>
+									</div>
+								</p:panelGrid>
+								</p:fragment>
+							</div>
+						</div>
+						</div>
+					</div>
+					
 				</div>
 
 				<!-- FILA 1 COLUMNA 2 -->
@@ -168,9 +264,10 @@
 														value="#{adminView.clienteSel}">
 														<p:ajax event="change" update="dtUsuarios,form:editUsername, form:editPass, 
 															form:asociarSel, form:dtAsociados, form:btnActAs, form:btnDelAs, form:btnAgAs"
-															listener="#{adminView.cambioCliente}"  />
+															listener="#{adminView.cambioCliente}"  
+															onstart="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 														<f:selectItems value="#{adminView.clientes}" var="cliente"
-															itemLabel="#{cliente.nombre}" itemValue="#{cliente.id}" />
+															itemLabel="#{cliente.nombre} - #{cliente.id-1}" itemValue="#{cliente.id}" />
 													</h:selectOneMenu>
 												</div>
 											</div>
@@ -184,7 +281,8 @@
 											<p:ajax event="rowSelect" listener="#{adminView.obtenerDependientes}"
 												update="form:editUsername, form:editPass, form:editTipo, 
 													form:editEstado, form:asociarSel, form:dtAsociados, 
-													form:btnActAs, form:btnDelAs, form:btnAgAs" />
+													form:btnActAs, form:btnDelAs, form:btnAgAs" 
+												onstart="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 											<p:column headerText="Usuario" style="text-align:center;">
 												<h:outputText value="#{user.username}" />
 											</p:column>
@@ -203,14 +301,16 @@
 										<div class="form-group" style="text-align:center;">
 											<p:commandButton value="DESHABILITAR" 
 														styleClass="btn btn-danger form-control" 
-														action="#{adminView.cambiarEstatusCuentas(false)}" update="dtUsuarios"/>
+														action="#{adminView.cambiarEstatusCuentas(false)}" update="dtUsuarios"
+														onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 										</div>
 									</div>
 									<div class="col-lg-6 col-sm-12">
 										<div class="form-group" style="text-align:center;">
 											<p:commandButton value="HABILITAR" 
 														styleClass="btn btn-success form-control" 
-														action="#{adminView.cambiarEstatusCuentas(true)}" update="dtUsuarios"/>
+														action="#{adminView.cambiarEstatusCuentas(true)}" update="dtUsuarios"
+														onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 										</div>
 									</div>
 								</p:fragment>
@@ -264,7 +364,8 @@
 											<div class="col-lg-3 col-md-3 col-sm-12 col-xs-12">
 												<div class="form-group">
 													<p:commandLink action="#{adminView.eliminarUsuario}" styleClass="btn btn-sm btn-danger"
-														update="dtUsuarios, form:editUsername, form:editPass">
+														update="dtUsuarios, form:editUsername, form:editPass" 
+														onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()">
 														<i class="fa fa-trash"></i>
 													</p:commandLink>
 												</div>
@@ -273,7 +374,8 @@
 											<div class="form-group" style="text-align:center;">
 												<p:commandButton value="ACTUALIZAR" action="#{adminView.actualizarUsuario}"
 													styleClass="btn btn-success btn-block form-control" 
-													update="dtUsuarios"/>
+													update="dtUsuarios" onclick="PF('statusDialog').show()"  
+													oncomplete="PF('statusDialog').hide()"/>
 											</div>
 											</div>
 										</div>
@@ -308,7 +410,8 @@
 													<div class="form-group" style="text-align: center;">
 														<p:commandButton id="btnAgAs" value="AGREGAR" update="form:dtAsociados"
 															action="#{adminView.agregarAsociado}" disabled="#{adminView.disableAsociado}"
-															styleClass="btn btn-success form-control" />
+															styleClass="btn btn-success form-control" 
+															onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 													</div>
 												</div>
 
@@ -346,7 +449,8 @@
 									<div class="col-lg-4 col-sm-12"> <!-- col-lg-offset-1 -->
 										<div class="form-group text-left" >
 											<p:commandLink id="btnDelAs" action="#{adminView.eliminarAsociado}" styleClass="btn btn-sm btn-danger" 
-														update="form:dtAsociados" disabled="#{adminView.disableAsociado}">
+														update="form:dtAsociados" disabled="#{adminView.disableAsociado}"
+														onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()">
 														<i class="fa fa-trash"></i>
 											</p:commandLink>
 										</div>
@@ -355,7 +459,8 @@
 										<div class="form-group text-left">
 											<p:commandButton id="btnActAs" value="ACTUALIZAR" disabled="#{adminView.disableAsociado}"
 														styleClass="btn btn-success form-control" 
-														action="#{adminView.guardarListaAsociados}" />
+														action="#{adminView.guardarListaAsociados}" 
+														onclick="PF('statusDialog').show()"  oncomplete="PF('statusDialog').hide()"/>
 										</div>
 									</div>
 									</p:fragment>
